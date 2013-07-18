@@ -18,7 +18,7 @@ Also output a selected section of your dynamic menu through our advanced submenu
 
 == Installation ==
 
-1. First grab a copy from [github](https://github.com/jcollings/jc-submenu/archive/master.zip).
+1. First grab a copy from [wordpress.org](http://downloads.wordpress.org/plugin/jc-submenu.zip).
 1. Extract the plugin to your wordpress plugins folder.
 1. Activate the plugin from your wordpress administration area (under the plugins section).
 1. You should thee should now be able to use JC Submenu Plugin.
