@@ -16,10 +16,10 @@ $JCSubmenu = new JCSubmenu();
  * Core plugin file, load all required classes
  * 
  * @author James Collings <james@jclabs.co.uk>
- * @version 0.0.1
+ * @version 0.2
  */
 class JCSubmenu{
-	var $version = '0.0.1';
+	var $version = '0.2';
 	var $plugin_dir = false;
 	var $plugin_url = false;
 	var $prefix = 'jc-submenu';

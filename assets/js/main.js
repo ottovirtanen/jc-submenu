@@ -165,7 +165,7 @@ var JC_Submenu = {
      * Document Ready
      */
      $(document).ready(function(){
-
+     	$('.show-post, .show-tax, .show-page').hide();
      });
 
 })(jQuery);
