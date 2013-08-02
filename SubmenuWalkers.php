@@ -162,7 +162,7 @@ class JC_Submenu_Admin_Walker extends Walker_Nav_Menu {
 					</label>
 				</p>
 
-				<?php $this->output_submenu_block($item_id); ?>
+				<?php require plugin_dir_path( __FILE__ ) . '/views/edit.php'; ?>
 
 				<div class="menu-item-actions description-wide submitbox">
 					<?php if( 'custom' != $item->type && $original_title !== false ) : ?>
@@ -196,119 +196,6 @@ class JC_Submenu_Admin_Walker extends Walker_Nav_Menu {
 		$output .= ob_get_clean();
 	}
 
-	function output_submenu_block($item_id = 0){
-		?>
-		<p class="jc-submenu-autopop description description-wide">
-			<label for="edit-jc-submenu-autopop-<?php echo $item_id; ?>">
-				<input type="checkbox" id="edit-jc-submenu-autopop-<?php echo $item_id; ?>" value="1" class="jc-submenu-autopopulate" name="jc-submenu-autopop[<?php echo $item_id; ?>]" <?php if(intval(SubmenuModel::get_meta($item_id, 'autopopulate')) == 1): ?>checked="checked"<?php endif; ?>>
-				 <strong>JC Submenu</strong> - Automatically populate submenu
-			</label>
-		</p>
-
-		<div id="jc-submenu-populate-block-<?php echo $item_id; ?>" class="jc-submenu-populate-block description-wide hidden">
-			<p class="jc-submenu-populate-post description description-wide">
-				<label for="edit-jc-submenu-populate-type-<?php echo $item_id; ?>">
-					<input type="radio" id="edit-jc-submenu-populate-type-<?php echo $item_id; ?>" class="jc-submenu-populate-type" value="post" name="jc-submenu-populate-type[<?php echo $item_id; ?>]" <?php if(SubmenuModel::get_meta($item_id, 'populate-type') == 'post'): ?>checked="checked"<?php endif; ?>>
-					 Populate from post type
-				</label>
-			</p>
-
-			<!-- Post Population Options -->
-			<?php $p_types=get_post_types(array('public' => true)); ?>
-			<p class="jc-submenu-populate-post show-post hidden">
-				<label>Post Type</label>
-				<select id="edit-jc-submenu-populate-post-<?php echo $item_id; ?>"name="jc-submenu-populate-post[<?php echo $item_id; ?>]">
-				<?php foreach($p_types as $slug => $name): ?>
-					<option value="<?php echo $slug; ?>" <?php if(SubmenuModel::get_meta($item_id, 'populate-value') == $slug): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
-				<?php endforeach; ?>
-				</select>
-			</p>
-			<?php $order_options = SubmenuModel::get_order_options('post'); 
-			$orderby = array('ASC' => 'Ascending', 'DESC' => 'Descending' ); ?>
-			<p class="jc-submenu-post-orderby show-post hidden">
-				<label>Order</label>
-				<select id="edit-jc-submenu-post-orderby-<?php echo $item_id; ?>"name="jc-submenu-post-orderby[<?php echo $item_id; ?>]">
-				<?php foreach($order_options as $value => $name): ?>
-					<option value="<?php echo $value; ?>" <?php if(SubmenuModel::get_meta($item_id, 'post-orderby') == $value): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
-				<?php endforeach; ?>
-				</select>
-				<label>By</label>
-				<select id="edit-jc-submenu-post-order-<?php echo $item_id; ?>"name="jc-submenu-post-order[<?php echo $item_id; ?>]">
-				<?php foreach($orderby as $value => $name): ?>
-					<option value="<?php echo $value; ?>" <?php if(SubmenuModel::get_meta($item_id, 'post-order') == $value): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
-				<?php endforeach; ?>
-				</select>
-			</p>
-			<p class="jc-submenu-post-limit show-post hidden">
-				<label>Post Limit</label>
-				<input type="text" id="edit-jc-submenu-post-limit-<?php echo $item_id; ?>"name="jc-submenu-post-limit[<?php echo $item_id; ?>]" value="<?php echo SubmenuModel::get_meta($item_id, 'post-limit'); ?>" />
-			</p>
-			<!-- End of Post Population Option -->
-
-
-			<p class="jc-submenu-populate-tax description description-wide">
-				<label for="edit-jc-submenu-populate-type<?php echo $item_id; ?>">
-					<input type="radio" id="edit-jc-submenu-populate-type-<?php echo $item_id; ?>" class="jc-submenu-populate-type" value="tax" name="jc-submenu-populate-type[<?php echo $item_id; ?>]" <?php if(SubmenuModel::get_meta($item_id, 'populate-type') == 'tax'): ?>checked="checked"<?php endif; ?>>
-					 Populate from taxonomy
-				</label>
-			</p>
-
-			<!-- Taxonomy Population Options -->
-			<?php $taxs = get_taxonomies( array('public' => true) ); ?>
-			<p class="jc-submenu-populate-tax show-tax hidden">
-				<label>Taxonomies</label>
-				<select id="edit-jc-submenu-populate-tax-<?php echo $item_id; ?>"name="jc-submenu-populate-tax[<?php echo $item_id; ?>]">
-				<?php foreach($taxs as $slug => $name): ?>
-					<?php if($slug == 'post_format'){ continue; } ?>
-					<option value="<?php echo $slug; ?>" <?php if(SubmenuModel::get_meta($item_id, 'populate-value') == $slug): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
-				<?php endforeach; ?>
-				</select>
-			</p>
-			<?php 
-			$order_options = SubmenuModel::get_order_options('tax');
-			$orderby = array('ASC' => 'Ascending', 'DESC' => 'Descending' ); ?>
-			<p class="jc-submenu-tax-orderby show-tax hidden">
-				<label>Order</label>
-				<select id="edit-jc-submenu-tax-orderby-<?php echo $item_id; ?>"name="jc-submenu-tax-orderby[<?php echo $item_id; ?>]">
-				<?php foreach($order_options as $value => $name): ?>
-					<option value="<?php echo $value; ?>" <?php if(SubmenuModel::get_meta($item_id, 'tax-orderby') == $value): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
-				<?php endforeach; ?>
-				</select>
-				<label>By</label>
-				<select id="edit-jc-submenu-tax-order-<?php echo $item_id; ?>"name="jc-submenu-tax-order[<?php echo $item_id; ?>]">
-				<?php foreach($orderby as $value => $name): ?>
-					<option value="<?php echo $value; ?>" <?php if(SubmenuModel::get_meta($item_id, 'tax-order') == $value): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
-				<?php endforeach; ?>
-				</select>
-			</p>
-			<p class="jc-submenu-tax-empty show-tax hidden">
-				<input type="checkbox" value="1" name="jc-submenu-tax-empty[<?php echo $item_id; ?>]" id="edit-jc-submenu-tax-empty-<?php echo $item_id; ?>" <?php if(SubmenuModel::get_meta($item_id, 'tax-empty') == 1): ?> checked="checked"<?php endif; ?>>
-				Hide Empty Terms
-			</p>
-			<!-- End of Taxonomy Population Options -->
-
-			<p class="jc-submenu-populate-page description description-wide">
-				<label for="edit-jc-submenu-populate-type-<?php echo $item_id; ?>">
-					<input type="radio" id="edit-jc-submenu-populate-type-<?php echo $item_id; ?>" class="jc-submenu-populate-type" value="page" name="jc-submenu-populate-type[<?php echo $item_id; ?>]" <?php if(SubmenuModel::get_meta($item_id, 'populate-type') == 'page'): ?>checked="checked"<?php endif; ?>>
-					 Populate from child pages
-				</label>
-			</p>
-
-			<!-- Page Population Options -->
-			<p class="jc-submenu-populate-page show-page hidden">
-				<label>Parent Page</label>
-				<?php 
-				wp_dropdown_pages(array(
-					'id' => 'edit-jc-submenu-populate-page-'.$item_id,
-					'name' => 'jc-submenu-populate-page['.$item_id.']',
-					'selected' => SubmenuModel::get_meta($item_id, 'populate-value')
-				));
-				?>
-			</p>
-			<!-- End of Page Population Options -->
-		</div>
-		<?php
-	}
 }
 
 class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
@@ -397,127 +284,155 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 
 		global $post;
 
-		foreach($elements as $e){
+		$hidden_elements = array();
 
-			$current_dynamic_parent = false;
+		foreach($elements as $k => $e){
+			$break = false;
+			
+			if(!is_user_logged_in() && intval(SubmenuModel::get_meta($e->$id_field, 'admin')) == 1){
+				unset($elements[$k]);
+				$break = true;
+			}
 
-			if(SubmenuModel::get_meta($e->$id_field, 'autopopulate') == 1){
-				
-				$type = SubmenuModel::get_meta($e->$id_field, 'populate-type');
-				$value = SubmenuModel::get_meta($e->$id_field, 'populate-value');
+			if(!$break){
+				$current_dynamic_parent = false;
 
-				
+				if(SubmenuModel::get_meta($e->$id_field, 'autopopulate') == 1){
+					
+					$type = SubmenuModel::get_meta($e->$id_field, 'populate-type');
+					$value = SubmenuModel::get_meta($e->$id_field, 'populate-value');
 
-				if($type == 'post'){
+					if($type == 'post'){
 
-					$limit = SubmenuModel::get_meta($e->$id_field, 'post-limit');
-					$order = SubmenuModel::get_meta($e->$id_field, 'post-order');
-					$orderby = SubmenuModel::get_meta($e->$id_field, 'post-orderby');
+						$limit = SubmenuModel::get_meta($e->$id_field, 'post-limit');
+						$order = SubmenuModel::get_meta($e->$id_field, 'post-order');
+						$orderby = SubmenuModel::get_meta($e->$id_field, 'post-orderby');
+						
+						$post_tax = SubmenuModel::get_meta($e->$id_field, 'post-tax');
+						$post_term = intval(SubmenuModel::get_meta($e->$id_field, 'post-term'));
 
-					$test = new WP_Query(array(
-						'post_type' => $value, 
-						'posts_per_page' => $limit,
-						'order' => $order,
-						'order_by' => $orderby
-					));
+						$post_query = array(
+							'post_type' => $value, 
+							'posts_per_page' => $limit,
+							'order' => $order,
+							'order_by' => $orderby
+						);
 
-					if($test->have_posts()){
-						foreach($test->posts as $p){
+						// add taxonomy filter
+						if( !empty($post_tax) && taxonomy_exists( $post_tax ) ){
+							$tax_args = array( 'taxonomy' => $post_tax, 'field' => 'id' );
+
+							if(get_term_by( 'id', $post_term, $post_tax)){
+								$tax_args['terms'] = $post_term;
+							}
+
+							$post_query['tax_query'] = array(
+								$tax_args
+							);
+						}
+
+						$test = new WP_Query($post_query);
+
+						if($test->have_posts()){
+							foreach($test->posts as $p){
+								$p->$id_field = $p->ID;
+								$p->title = $p->post_title;
+								
+								if(is_single($post) && is_singular( $value ) && $post->ID == $p->ID){
+									$current_dynamic_parent = true;
+									$p->classes = array('current-menu-item');
+								}
+								
+								$p->url = get_permalink( $p->ID);
+								$p->$parent_field = $e->$id_field;
+								$elements[] = $p;
+							}
+						}
+					}elseif($type == 'tax'){
+						
+						$order = SubmenuModel::get_meta($e->$id_field, 'tax-order');
+						$orderby = SubmenuModel::get_meta($e->$id_field, 'tax-orderby');
+						$hide = SubmenuModel::get_meta($e->$id_field, 'tax-empty');
+
+						$terms = get_terms( $value, array(
+							'hide_empty' => $hide,
+							'order' => $order,
+							'order_by' => $orderby
+						) );
+
+						$tax_elements = array();
+
+						foreach($terms as $t){
+							$t->$id_field = $t->term_id;
+							$t->ID = $t->term_id;
+							$t->title = $t->name;
+							$t->url = get_term_link( $t, $value );
+							if($t->parent == 0){
+								$t->$parent_field = $e->$id_field;	
+							}else{
+								$t->$parent_field = $t->parent;
+							}
+
+							if((is_category() && is_category( $t->ID )) || (is_tag() && is_tag( $t->slug )) || is_tax( $value, $t->slug ) ){
+								$current_dynamic_parent = $t->$parent_field;
+								$t->classes = array('current-menu-item');
+							}
+							
+							$tax_elements[] = $t;
+						}
+
+						if($current_dynamic_parent){
+							$this->child_page_walker($tax_elements, $current_dynamic_parent);
+						}
+
+						$elements = array_merge($elements, $tax_elements);
+
+
+					}elseif($type == 'page'){
+
+						$pages = get_pages(array( 
+							'hierarchical' => 1, 
+							'child_of' => $value 
+						));
+
+						$page_elements = array();
+
+						foreach($pages as $p){
 							$p->$id_field = $p->ID;
 							$p->title = $p->post_title;
-							
-							if(is_single($post) && is_singular( $value ) && $post->ID == $p->ID){
-								$current_dynamic_parent = true;
+
+							$p->url = get_permalink( $p->ID);
+							if($p->post_parent == $value){
+								$p->$parent_field = $e->$id_field;
+							}else{
+								$p->$parent_field = $p->post_parent;
+							}
+
+							if( is_page($p->ID) && $post->ID == $p->ID){
+								$current_dynamic_parent = $p->$parent_field;
 								$p->classes = array('current-menu-item');
 							}
 							
-							$p->url = get_permalink( $p->ID);
-							$p->$parent_field = $e->$id_field;
-							$elements[] = $p;
-						}
-					}
-				}elseif($type == 'tax'){
-					
-					$order = SubmenuModel::get_meta($e->$id_field, 'tax-order');
-					$orderby = SubmenuModel::get_meta($e->$id_field, 'tax-orderby');
-					$hide = SubmenuModel::get_meta($e->$id_field, 'tax-empty');
 
-					$terms = get_terms( $value, array(
-						'hide_empty' => $hide,
-						'order' => $order,
-						'order_by' => $orderby
-					) );
-
-					$tax_elements = array();
-
-					foreach($terms as $t){
-						$t->$id_field = $t->term_id;
-						$t->ID = $t->term_id;
-						$t->title = $t->name;
-						$t->url = get_term_link( $t, $value );
-						if($t->parent == 0){
-							$t->$parent_field = $e->$id_field;	
-						}else{
-							$t->$parent_field = $t->parent;
+							$page_elements[] = $p;
 						}
 
-						if((is_category() && is_category( $t->ID )) || (is_tag() && is_tag( $t->slug )) || is_tax( $value, $t->slug ) ){
-							$current_dynamic_parent = $t->$parent_field;
-							$t->classes = array('current-menu-item');
+						if($current_dynamic_parent){
+							$this->child_page_walker($page_elements, $current_dynamic_parent);
 						}
+
+						$elements = array_merge($elements, $page_elements);
 						
-						$tax_elements[] = $t;
 					}
-
-					if($current_dynamic_parent){
-						$this->child_page_walker($tax_elements, $current_dynamic_parent);
-					}
-
-					$elements = array_merge($elements, $tax_elements);
-
-
-				}elseif($type == 'page'){
-
-					$pages = get_pages(array( 
-						'hierarchical' => 1, 
-						'child_of' => $value 
-					));
-
-					$page_elements = array();
-
-					foreach($pages as $p){
-						$p->$id_field = $p->ID;
-						$p->title = $p->post_title;
-
-						$p->url = get_permalink( $p->ID);
-						if($p->post_parent == $value){
-							$p->$parent_field = $e->$id_field;
-						}else{
-							$p->$parent_field = $p->post_parent;
-						}
-
-						if( is_page($p->ID) && $post->ID == $p->ID){
-							$current_dynamic_parent = $p->$parent_field;
-							$p->classes = array('current-menu-item');
-						}
-						
-
-						$page_elements[] = $p;
-					}
-
-					if($current_dynamic_parent){
-						$this->child_page_walker($page_elements, $current_dynamic_parent);
-					}
-
-					$elements = array_merge($elements, $page_elements);
-					
+				}
+			
+				if($current_dynamic_parent){
+					$e->classes[] = 'current-menu-ancestor';
 				}
 			}
-
-			if($current_dynamic_parent){
-				$e->classes[] = 'current-menu-ancestor';
-			}
 		}
+
+
 
 
 
@@ -559,8 +474,10 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 			}
 		}
 
+
 		foreach ( $top_level_elements as $e )
 			$this->display_element( $e, $children_elements, $max_depth, 0, $args, $output );
+
 
 		/*
 		 * if we are displaying all levels, and remaining children_elements is not empty,

@@ -55,6 +55,13 @@ class SubmenuAdmin{
 			return false;
 
 		foreach($_POST['menu-item-title'] as $menu_item_id => $menu_item_title){
+
+			if(isset($_POST[$this->config->prefix.'-admin']) && array_key_exists($menu_item_id, $_POST[$this->config->prefix.'-admin'])){
+				SubmenuModel::save_meta($menu_item_id, 'admin', 1);
+			}else{
+				SubmenuModel::save_meta($menu_item_id, 'admin', 0);
+			}
+
 			if(isset($_POST[$this->config->prefix.'-autopop']) && array_key_exists($menu_item_id, $_POST[$this->config->prefix.'-autopop'])){
 				// save post meta for active items
 				SubmenuModel::save_menu_item($menu_item_id);

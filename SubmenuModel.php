@@ -68,6 +68,13 @@ class SubmenuModel{
 				$post_limit = self::get_post_data($menu_item_id, 'post-limit');
 				$post_order = self::get_post_data($menu_item_id, 'post-order');
 				$post_orderby = self::get_post_data($menu_item_id, 'post-orderby');
+				$post_tax = self::get_post_data($menu_item_id, 'post-tax');
+				$post_term = self::get_post_data($menu_item_id, 'post-term');
+
+				$post_tax = !empty($post_tax) ? $post_tax : 0;
+				$post_term = !empty($post_term) ? $post_term : 0;
+
+
 				$post_limit = intval($post_limit);
 
 				// validate order
@@ -84,6 +91,9 @@ class SubmenuModel{
 				self::save_meta($menu_item_id, 'post-limit', $post_limit);
 				self::save_meta($menu_item_id, 'post-order', $post_order);
 				self::save_meta($menu_item_id, 'post-orderby', $post_orderby);
+				self::save_meta($menu_item_id, 'post-tax', $post_tax);
+				self::save_meta($menu_item_id, 'post-term', $post_term);
+				// self::save_post_tax($menu_item_id, $post_tax);
 			}elseif($type == 'tax'){
 				$tax_order = self::get_post_data($menu_item_id, 'tax-order');
 				$tax_orderby = self::get_post_data($menu_item_id, 'tax-orderby');
@@ -110,6 +120,45 @@ class SubmenuModel{
 			self::save_meta($menu_item_id, 'autopopulate', 1);
 		}
 
+	}
+
+	/**
+	 * Save post type taxonomy filter
+	 * @param $menu_item_id
+	 * @param $string
+	 */
+	static function save_post_tax($menu_item_id = 0, $string = ''){
+
+		// no string to parse
+		if(empty($string)){
+			self::save_meta($menu_item_id, 'post-tax', 0);
+			self::save_meta($menu_item_id, 'post-term', 0);
+			return false;
+		}
+			
+
+		// save tax only
+		if(strpos($string, '-') === false  && (taxonomy_exists( $string ) || $string == 0 ) ){
+			self::save_meta($menu_item_id, 'post-tax', $string);
+			self::save_meta($menu_item_id, 'post-term', 0);
+			return true;
+		}
+
+		// save term and tax
+		$split = explode('-', $string);
+
+		if(count($split) == 2){
+			$term_id = intval($split[1]);
+			$tax = $split[0];
+
+			if(taxonomy_exists( $tax ) && (get_term_by( 'id', $term_id, $tax) || $term_id == 0) ){
+				self::save_meta($menu_item_id, 'post-tax', $tax);
+				self::save_meta($menu_item_id, 'post-term', $term_id);
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -158,7 +207,9 @@ class SubmenuModel{
 			'post-orderby',
 			'tax-order',
 			'tax-orderby',
-			'tax-empty'
+			'tax-empty',
+			'post-tax',
+			'post-term'
 		);
 		
 		foreach($keys as $meta_key){

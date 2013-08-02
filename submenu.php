@@ -19,7 +19,7 @@ $JCSubmenu = new JCSubmenu();
  * @version 0.0.1
  */
 class JCSubmenu{
-	var $version = '0.1';
+	var $version = '0.0.1';
 	var $plugin_dir = false;
 	var $plugin_url = false;
 	var $prefix = 'jc-submenu';
