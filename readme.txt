@@ -37,6 +37,12 @@ Also output a selected section of your dynamic menu through our advanced submenu
 4. JC Submenu, Advanced Submenu Widget Options
 
 == Changelog ==
+**0.2**
+
+*   Interface update
+*   Custom post type population can now be filtered by a Taxonomy
+*   Javascript update
+*   Compatability with wordpress 3.6
 
 
 == Upgrade notice ==

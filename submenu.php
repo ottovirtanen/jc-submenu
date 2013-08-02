@@ -3,7 +3,7 @@
 	Plugin Name: JC Submenu
 	Plugin URI: http://jamescollings.co.uk/blog/jc-submenu-dynamic-wordpress-menu-plugin/
 	Description: Wordpress Submenu Plugin, automatically populate your navigation menus with custom post_types, taxonomies, or child pages. An easy to use plugin created to be a lightweight menu extension.
-	Version: 0.1
+	Version: 0.2
 	Author: James Collings
 	Author URI: http://www.jamescollings.co.uk
  */
