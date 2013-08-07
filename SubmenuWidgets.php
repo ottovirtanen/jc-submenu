@@ -3,7 +3,8 @@
  * Submenu Widget Class
  *
  * Display Wordpress Submenu Widget
- * 
+ *
+ * @todo Add split menu functionality
  * @author James Collings <james@jclabs.co.uk>
  * @version 0.0.1
  */
@@ -35,6 +36,8 @@ class JC_Adv_Menu_Widget extends WP_Widget {
  
 		if ( ! empty( $title ) )
 			echo $before_title . $title . $after_title;
+
+		print_r($instance);
  
 		wp_nav_menu( array('menu' => $instance['menu'], 'walker' => new JC_Submenu_Nav_Walker(array(
 			'menu_item' => $instance['menu_item'], 
@@ -88,7 +91,7 @@ class JC_Adv_Menu_Widget extends WP_Widget {
  
 		<script type="text/javascript">
 		jQuery(document).ready(function($) {
-			$('select#<?php echo $this->get_field_id( 'menu_item' ); ?>').change(function(){
+			$('select#<?php echo $this->get_field_id( 'menu_item' ); ?>').live('change', function(){
 				var label=$('select#<?php echo $this->get_field_id( 'menu_item' ); ?> :selected').parent().attr('id');
 			    $('#<?php echo $this->get_field_id( 'menu' ); ?>').val(label);
 			});
