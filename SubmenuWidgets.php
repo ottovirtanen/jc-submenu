@@ -36,8 +36,6 @@ class JC_Adv_Menu_Widget extends WP_Widget {
  
 		if ( ! empty( $title ) )
 			echo $before_title . $title . $after_title;
-
-		print_r($instance);
  
 		wp_nav_menu( array('menu' => $instance['menu'], 'walker' => new JC_Submenu_Nav_Walker(array(
 			'menu_item' => $instance['menu_item'], 
