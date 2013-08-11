@@ -285,6 +285,8 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		global $post;
 
 		$hidden_elements = array();
+		$output_elements = array();
+		$dynamic_count = 1;
 
 		foreach($elements as $k => $e){
 			$break = false;
@@ -345,14 +347,18 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 								
 								$p->url = get_permalink( $p->ID);
 								$p->$parent_field = $e->$id_field;
-								$elements[] = $p;
+								$elements[] = clone($p);
 							}
 						}
 					}elseif($type == 'tax'){
+
+						$dynamic_item_prefix = str_repeat(0, $dynamic_count);
+
+						$tax_parent_id = $e->$id_field;
 						
-						$order = SubmenuModel::get_meta($e->$id_field, 'tax-order');
-						$orderby = SubmenuModel::get_meta($e->$id_field, 'tax-orderby');
-						$hide = SubmenuModel::get_meta($e->$id_field, 'tax-empty');
+						$order = SubmenuModel::get_meta($tax_parent_id, 'tax-order');
+						$orderby = SubmenuModel::get_meta($tax_parent_id, 'tax-orderby');
+						$hide = SubmenuModel::get_meta($tax_parent_id, 'tax-empty');
 
 						$terms = get_terms( $value, array(
 							'hide_empty' => $hide,
@@ -363,14 +369,16 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 						$tax_elements = array();
 
 						foreach($terms as $t){
-							$t->$id_field = $t->term_id;
+							// $t->$id_field = $t->term_id;
+							$t->$id_field = $dynamic_item_prefix . $t->term_id;
 							$t->ID = $t->term_id;
 							$t->title = $t->name;
 							$t->url = get_term_link( $t, $value );
 							if($t->parent == 0){
-								$t->$parent_field = $e->$id_field;	
+								$t->$parent_field = $tax_parent_id;
+								$t->test = $tax_parent_id;		
 							}else{
-								$t->$parent_field = $t->parent;
+								$t->$parent_field = $dynamic_item_prefix . $t->parent;
 							}
 
 							if((is_category() && is_category( $t->ID )) || (is_tag() && is_tag( $t->slug )) || is_tax( $value, $t->slug ) ){
@@ -378,7 +386,7 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 								$t->classes = array('current-menu-item');
 							}
 							
-							$tax_elements[] = $t;
+							$tax_elements[] = clone($t);
 						}
 
 						if($current_dynamic_parent){
@@ -387,6 +395,7 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 
 						$elements = array_merge($elements, $tax_elements);
 
+						$dynamic_count++;
 
 					}elseif($type == 'page'){
 
@@ -413,8 +422,7 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 								$p->classes = array('current-menu-item');
 							}
 							
-
-							$page_elements[] = $p;
+							$page_elements[] = clone($p);
 						}
 
 						if($current_dynamic_parent){
@@ -429,14 +437,9 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 				if($current_dynamic_parent){
 					$e->classes[] = 'current-menu-ancestor';
 				}
+
 			}
 		}
-
-
-
-
-
-		
 
 		/*
 		 * need to display in hierarchical order
@@ -446,11 +449,12 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		 */
 		$top_level_elements = array();
 		$children_elements  = array();
+
 		foreach ( $elements as $e) {
 
-			if ( 0 == $e->$parent_field )
+			if ( 0 == $e->$parent_field ){
 				$top_level_elements[] = $e;
-			else{
+			}else{
 				$children_elements[ $e->$parent_field ][] = $e;
 			}
 		}
@@ -474,10 +478,8 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 			}
 		}
 
-
 		foreach ( $top_level_elements as $e )
 			$this->display_element( $e, $children_elements, $max_depth, 0, $args, $output );
-
 
 		/*
 		 * if we are displaying all levels, and remaining children_elements is not empty,
