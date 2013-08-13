@@ -203,37 +203,50 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 	private $menu_item = null;
 	private $menu_item_depth = -1;
 	private $hierarchical = true;
-
 	private $output = true;
 
-	public function __construct($args = array()){
-		$this->menu_item = isset($args['menu_item']) && !empty($args['menu_item']) ? intval($args['menu_item']) : null;
-		if($this->menu_item > 0){
-			$this->output = false;
-		}
+	private $split = false;
 
+	public function __construct($args = array()){
 		$this->hierarchical = isset($args['hierarchical']) && $args['hierarchical'] == 0 ? 0 : 1;
+		$this->split_menu = isset($args['split_menu']) ? true : false;
+			
+		// Display Menu Section
+		$this->menu_start = isset($args['menu_start']) ? intval($args['menu_start']) : 0;
+		$this->menu_depth = isset($args['menu_depth']) ? intval($args['menu_depth']) : 5;
+		$this->show_parent = isset($args['show_parent'])  && $args['show_parent'] == 1 ? 1 : 0;
 	}
 
 	function start_el( &$output, $item, $depth, $args ) {
 
-		if($this->menu_item == $item->ID){
-			$this->output = true;
-			$this->menu_item_depth = $depth;
+		/**
+		 * Check to see if depth matches menu start and is split section
+		 */
+		if(($depth == $this->menu_start) && $item->split_section){
+			$this->split = true;
 		}
  		
- 		if($this->output && $item->ID != $this->menu_item){
+ 		if(($this->output && $item->ID != $this->menu_item && !$this->split_menu) 
+ 			|| ($this->split == true && $depth <= ($this->menu_start + $this->menu_depth) && ($depth > $this->menu_start || $this->show_parent == 1))){
 			parent::start_el($output, $item, $depth, $args);
 		}
+
+
 	}
  
 	function end_el( &$output, $item, $depth = 0, $args = array() ) {
 
-		if($depth <= $this->menu_item_depth)
-			$this->output = false;
+		/**
+		 * Check to see if depth matches menu start and is split == true
+		 */
+		if($depth == $this->menu_start && $this->split == true){
+			$this->split = false;
+		}
 
-		if($this->output && $item->ID != $this->menu_item)
+		if(($this->output && $item->ID != $this->menu_item && !$this->split_menu) 
+			|| ($this->split == true && $depth <= ($this->menu_start + $this->menu_depth) && ($depth > $this->menu_start || $this->show_parent == 1))){
 			parent::end_el($output, $item, $depth, $args);
+		}
 	}
 
 	function start_lvl( &$output, $depth = 0, $args = array() ) {
@@ -283,14 +296,19 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		}
 
 		global $post;
-
-		$hidden_elements = array();
-		$output_elements = array();
 		$dynamic_count = 1;
 
+		// store the current menu section
+		$section_id = null;
+
+		/**
+		 * Loop through all menu items checking to see if if any items have been
+		 * marked for auto population using this plugin
+		 */
 		foreach($elements as $k => $e){
 			$break = false;
 			
+			// Hide element for logged in users
 			if(!is_user_logged_in() && intval(SubmenuModel::get_meta($e->$id_field, 'admin')) == 1){
 				unset($elements[$k]);
 				$break = true;
@@ -299,58 +317,19 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 			if(!$break){
 				$current_dynamic_parent = false;
 
+				// check to see if auto populate flag has been set
 				if(SubmenuModel::get_meta($e->$id_field, 'autopopulate') == 1){
 					
 					$type = SubmenuModel::get_meta($e->$id_field, 'populate-type');
 					$value = SubmenuModel::get_meta($e->$id_field, 'populate-value');
 
 					if($type == 'post'){
-
-						$limit = SubmenuModel::get_meta($e->$id_field, 'post-limit');
-						$order = SubmenuModel::get_meta($e->$id_field, 'post-order');
-						$orderby = SubmenuModel::get_meta($e->$id_field, 'post-orderby');
-						
-						$post_tax = SubmenuModel::get_meta($e->$id_field, 'post-tax');
-						$post_term = intval(SubmenuModel::get_meta($e->$id_field, 'post-term'));
-
-						$post_query = array(
-							'post_type' => $value, 
-							'posts_per_page' => $limit,
-							'order' => $order,
-							'order_by' => $orderby
-						);
-
-						// add taxonomy filter
-						if( !empty($post_tax) && taxonomy_exists( $post_tax ) ){
-							$tax_args = array( 'taxonomy' => $post_tax, 'field' => 'id' );
-
-							if(get_term_by( 'id', $post_term, $post_tax)){
-								$tax_args['terms'] = $post_term;
-							}
-
-							$post_query['tax_query'] = array(
-								$tax_args
-							);
-						}
-
-						$test = new WP_Query($post_query);
-
-						if($test->have_posts()){
-							foreach($test->posts as $p){
-								$p->$id_field = $p->ID;
-								$p->title = $p->post_title;
-								
-								if(is_single($post) && is_singular( $value ) && $post->ID == $p->ID){
-									$current_dynamic_parent = true;
-									$p->classes = array('current-menu-item');
-								}
-								
-								$p->url = get_permalink( $p->ID);
-								$p->$parent_field = $e->$id_field;
-								$elements[] = clone($p);
-							}
-						}
+						$this->populate_post_items($elements, $e, $value, $current_dynamic_parent);
+					}elseif($type == 'page'){
+						$this->populate_page_items($elements, $e, $value, $current_dynamic_parent);
 					}elseif($type == 'tax'){
+
+						// populate menu item with taxonomies
 
 						$dynamic_item_prefix = str_repeat(0, $dynamic_count);
 
@@ -369,7 +348,6 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 						$tax_elements = array();
 
 						foreach($terms as $t){
-							// $t->$id_field = $t->term_id;
 							$t->$id_field = $dynamic_item_prefix . $t->term_id;
 							$t->ID = $t->term_id;
 							$t->title = $t->name;
@@ -384,58 +362,31 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 							if((is_category() && is_category( $t->ID )) || (is_tag() && is_tag( $t->slug )) || is_tax( $value, $t->slug ) ){
 								$current_dynamic_parent = $t->$parent_field;
 								$t->classes = array('current-menu-item');
+								$t->split_section = true;
 							}
 							
 							$tax_elements[] = clone($t);
 						}
 
-						if($current_dynamic_parent){
-							$this->child_page_walker($tax_elements, $current_dynamic_parent);
-						}
-
 						$elements = array_merge($elements, $tax_elements);
 
-						$dynamic_count++;
-
-					}elseif($type == 'page'){
-
-						$pages = get_pages(array( 
-							'hierarchical' => 1, 
-							'child_of' => $value 
-						));
-
-						$page_elements = array();
-
-						foreach($pages as $p){
-							$p->$id_field = $p->ID;
-							$p->title = $p->post_title;
-
-							$p->url = get_permalink( $p->ID);
-							if($p->post_parent == $value){
-								$p->$parent_field = $e->$id_field;
-							}else{
-								$p->$parent_field = $p->post_parent;
-							}
-
-							if( is_page($p->ID) && $post->ID == $p->ID){
-								$current_dynamic_parent = $p->$parent_field;
-								$p->classes = array('current-menu-item');
-							}
-							
-							$page_elements[] = clone($p);
-						}
-
 						if($current_dynamic_parent){
-							$this->child_page_walker($page_elements, $current_dynamic_parent);
+							$this->child_page_walker($elements, $current_dynamic_parent);
 						}
 
-						$elements = array_merge($elements, $page_elements);
-						
+						$dynamic_count++;						
 					}
+				}
+
+				if($e->current == 1 || $e->current_item_ancestor == 1 || $e->current_item_parent){
+					$section_id = $e->$id_field;
+					$e->split_section = true;
 				}
 			
 				if($current_dynamic_parent){
 					$e->classes[] = 'current-menu-ancestor';
+					$section_id = $e->$id_field;
+					$e->split_section = true;
 				}
 
 			}
@@ -495,16 +446,135 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		 return $output;
 	}
 
+	/**
+	 * Populate menu item with pages
+	 * 
+	 * @param  array $elements               	list of menu elements
+	 * @param  stdObj $e                      	current menu item
+	 * @param  string $value                  	chosen page_parent
+	 * @param  boolean $current_dynamic_parent	current menu item flag
+	 * @return void
+	 */
+	public function populate_page_items(&$elements, $e, $value, &$current_dynamic_parent){
+		global $post;
+		$id_field = $this->db_fields['id'];
+		$parent_field = $this->db_fields['parent'];
+		$page_elements = array();
+
+		$pages = get_pages(array( 
+			'hierarchical' => 1, 
+			'child_of' => $value 
+		));
+
+		foreach($pages as $p){
+			
+			$p->$id_field = $p->ID;
+			$p->title = $p->post_title;
+			$p->url = get_permalink( $p->ID);
+
+			if($p->post_parent == $value){
+				$p->$parent_field = $e->$id_field;
+			}else{
+				$p->$parent_field = $p->post_parent;
+			}
+
+			// check if this page is the current page
+			if( is_page($p->ID) && $post->ID == $p->ID){
+				$current_dynamic_parent = $p->$parent_field;
+				$p->classes = array('current-menu-item');
+				$p->split_section = true;
+			}
+			
+			$page_elements[] = clone($p);
+		}
+
+		if($current_dynamic_parent){
+			$this->child_page_walker($page_elements, $current_dynamic_parent);
+		}
+
+		$elements = array_merge($elements, $page_elements);
+	}
+
+	/**
+	 * Populate menu item with a post type
+	 * 
+	 * @param  array $elements               	list of menu elements
+	 * @param  stdObj $e                      	current menu item
+	 * @param  string $value                  	chosen post type
+	 * @param  boolean $current_dynamic_parent	current menu item flag
+	 * @return void
+	 */
+	public function populate_post_items(&$elements, $e, $value, &$current_dynamic_parent){
+		global $post;
+		$id_field = $this->db_fields['id'];
+		$parent_field = $this->db_fields['parent'];
+
+		$limit = SubmenuModel::get_meta($e->$id_field, 'post-limit');
+		$order = SubmenuModel::get_meta($e->$id_field, 'post-order');
+		$orderby = SubmenuModel::get_meta($e->$id_field, 'post-orderby');
+		$post_tax = SubmenuModel::get_meta($e->$id_field, 'post-tax');
+		$post_term = intval(SubmenuModel::get_meta($e->$id_field, 'post-term'));
+
+		$post_query = array(
+			'post_type' => $value, 
+			'posts_per_page' => $limit,
+			'order' => $order,
+			'order_by' => $orderby
+		);
+
+		// add taxonomy filter
+		if( !empty($post_tax) && taxonomy_exists( $post_tax ) ){
+			$tax_args = array( 'taxonomy' => $post_tax, 'field' => 'id' );
+
+			if(get_term_by( 'id', $post_term, $post_tax)){
+				$tax_args['terms'] = $post_term;
+			}
+
+			$post_query['tax_query'] = array(
+				$tax_args
+			);
+		}
+
+		// run post type query
+		$post_type_query = new WP_Query($post_query);
+
+		if($post_type_query->have_posts()){
+			foreach($post_type_query->posts as $p){
+				
+				// set menu item variables
+				$p->$id_field = $p->ID;
+				$p->title = $p->post_title;
+				$p->url = get_permalink( $p->ID);
+				$p->$parent_field = $e->$id_field;
+				
+				// check if post item is the current page
+				if(is_single($post) && is_singular( $value ) && $post->ID == $p->ID){
+					$current_dynamic_parent = $p->$parent_field;
+					$p->classes = array('current-menu-item');
+					$p->split_section = true;
+				}
+				
+				$elements[] = clone($p);
+			}
+		}
+		
+		if($current_dynamic_parent){
+			$this->child_page_walker($elements, $current_dynamic_parent);
+		}
+	}
+
 	public function child_page_walker(&$elements, $parent){
 
 		$parent_field = $this->db_fields['parent'];
+		$id_field = $this->db_fields['id'];
 
 		foreach($elements as &$p){
 
-			if($p->ID == $parent){
+			if(strval($p->$id_field) === strval($parent)){
 				$p->classes = array('current-menu-ancestor');
-				$this->child_page_walker($elements, $p->$parent_field);
-				continue;
+				$p->split_section = true;
+				$this->child_page_walker($elements, strval($p->$parent_field));
+				return;
 			}
 			
 		}

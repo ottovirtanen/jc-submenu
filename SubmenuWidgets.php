@@ -16,8 +16,8 @@ class JC_Adv_Menu_Widget extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 	 		'jc_menu_widget', // Base ID
-			'JC Submenu Advanced Menu Widget', // Name
-			array( 'description' => __( 'Custom options to output menus in your theme')) // Args
+			'Split Menu Widget', // Name
+			array( 'description' => __( 'JC Submenu Split Menu Widget, display a section of a the current menu.')) // Args
 		);
 	}
  	
@@ -28,6 +28,7 @@ class JC_Adv_Menu_Widget extends WP_Widget {
  	 * @return void           
  	 */
 	public function widget( $args, $instance ) {
+
 		extract( $args );
  
 		$title = apply_filters( 'widget_title', $instance['title'] );
@@ -38,8 +39,11 @@ class JC_Adv_Menu_Widget extends WP_Widget {
 			echo $before_title . $title . $after_title;
  
 		wp_nav_menu( array('menu' => $instance['menu'], 'walker' => new JC_Submenu_Nav_Walker(array(
-			'menu_item' => $instance['menu_item'], 
-			'hierarchical' => $instance['menu_hierarchy']
+			'hierarchical' => $instance['menu_hierarchy'],
+			'menu_start' => $instance['menu_start'],
+			'menu_depth' => $instance['menu_depth'],
+			'show_parent' => $instance['show_parent'],
+			'split_menu' => true
 			))
 		));
  
@@ -55,8 +59,10 @@ class JC_Adv_Menu_Widget extends WP_Widget {
  
 		$title = isset($instance['title']) ? $instance['title'] : '';
 		$menu = isset($instance['menu']) ? $instance['menu'] : '';
-		$menu_item = isset($instance['menu_item']) ? $instance['menu_item'] : '';
 		$menu_hierarchy = isset($instance['menu_hierarchy']) ? $instance['menu_hierarchy'] : 1;
+		$show_parent = isset($instance['show_parent']) ? $instance['show_parent'] : 1;
+		$menu_start = isset($instance['menu_start']) ? $instance['menu_start'] : 0;
+		$menu_depth = isset($instance['menu_depth']) ? $instance['menu_depth'] : 5;
 		$menus = get_terms('nav_menu');
  
 		?>
@@ -68,34 +74,64 @@ class JC_Adv_Menu_Widget extends WP_Widget {
 		<p>
 		<input class="widefat" id="<?php echo $this->get_field_id( 'menu' ); ?>" name="<?php echo $this->get_field_name( 'menu' ); ?>" type="hidden" value="<?php echo $menu; ?>" />
 		</p>
- 
+
 		<p>
-			<label for="<?php echo $this->get_field_id( 'menu_item' ); ?>"><?php _e( 'Select Menu Part:' ); ?></label> 
-			<select class="widefat" id="<?php echo $this->get_field_id( 'menu_item' ); ?>" name="<?php echo $this->get_field_name( 'menu_item' ); ?>" >
+			<label for="<?php echo $this->get_field_id( 'menu' ); ?>"><?php _e( 'Select Menu:' ); ?></label> 
+			<select class="widefat" id="<?php echo $this->get_field_id( 'menu' ); ?>" name="<?php echo $this->get_field_name( 'menu' ); ?>" >
+
 				<?php foreach($menus as $m){
-					wp_nav_menu(array(
-					  'menu' => $m->slug, // your theme location here
-					  'container' => false,
-					  'walker'         => new Walker_Nav_Menu_Dropdown($menu_item),
-					  'items_wrap'     => '<optgroup id="'.$m->slug.'" label="'.$m->name.'">%3$s</optgroup>',
-					));
+					$selected = '';
+					if($m->slug == $menu){
+						$selected = ' selected="selected"';
+					}
+					echo '<option value="'.$m->slug.'"'.$selected.'>'.$m->name.'</option>';
 				} ?>
 			</select>
 		</p>
+
+		<?php $max_level = 5; ?>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'menu_start' ); ?>"><?php _e( 'Start Level:' ); ?></label> 
+			<select class="widefat" id="<?php echo $this->get_field_id( 'menu_start' ); ?>" name="<?php echo $this->get_field_name( 'menu_start' ); ?>" >
+
+				<?php 
+				for($x=0; $x <= $max_level; $x++){
+					$selected = '';
+					if($x == $menu_start){
+						$selected = ' selected="selected"';
+					}
+					echo '<option value="'.$x.'"'.$selected.'>'.$x.'</option>';
+				}
+				?>
+			</select>
+		</p>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'menu_depth' ); ?>"><?php _e( 'Menu Depth:' ); ?></label> 
+			<select class="widefat" id="<?php echo $this->get_field_id( 'menu_depth' ); ?>" name="<?php echo $this->get_field_name( 'menu_depth' ); ?>" >
+
+				<?php 
+				for($x=1; $x <= $max_level; $x++){
+					$selected = '';
+					if($x == $menu_depth){
+						$selected = ' selected="selected"';
+					}
+					echo '<option value="'.$x.'"'.$selected.'>'.$x.'</option>';
+				}
+				?>
+			</select>
+		</p>
+ 
+		<p>
+			<input id="<?php echo $this->get_field_id( 'show_parent' ); ?>" name="<?php echo $this->get_field_name( 'show_parent' ); ?>" type="checkbox" value="1" <?php if($show_parent == 1): ?>checked="checked"<?php endif; ?> />
+			<label for="<?php echo $this->get_field_id( 'show_parent' ); ?>">Show Parent</label>
+		</p>
+
 		<p>
 			<input id="<?php echo $this->get_field_id( 'menu_hierarchy' ); ?>" name="<?php echo $this->get_field_name( 'menu_hierarchy' ); ?>" type="checkbox" value="1" <?php if($menu_hierarchy == 1): ?>checked="checked"<?php endif; ?> />
 			<label for="<?php echo $this->get_field_id( 'menu_hierarchy' ); ?>">Show Hierarchy</label>
 		</p>
- 
-		<script type="text/javascript">
-		jQuery(document).ready(function($) {
-			$('select#<?php echo $this->get_field_id( 'menu_item' ); ?>').live('change', function(){
-				var label=$('select#<?php echo $this->get_field_id( 'menu_item' ); ?> :selected').parent().attr('id');
-			    $('#<?php echo $this->get_field_id( 'menu' ); ?>').val(label);
-			});
-		});
-		</script>
- 
 		<?php 
 	}
  	
@@ -110,8 +146,10 @@ class JC_Adv_Menu_Widget extends WP_Widget {
  
 		$instance['title'] = strip_tags( $new_instance['title'] );
 		$instance['menu'] = strip_tags( $new_instance['menu'] );
-		$instance['menu_item'] = strip_tags( $new_instance['menu_item'] );
+		$instance['menu_start'] = intval($new_instance['menu_start']);
+		$instance['menu_depth'] = intval($new_instance['menu_depth']);
 		$instance['menu_hierarchy'] = intval( $new_instance['menu_hierarchy'] );
+		$instance['show_parent'] = intval( $new_instance['show_parent'] );
  
 		return $instance;
 	}
