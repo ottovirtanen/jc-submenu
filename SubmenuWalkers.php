@@ -222,7 +222,7 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		/**
 		 * Check to see if depth matches menu start and is split section
 		 */
-		if(($depth == $this->menu_start) && $item->split_section){
+		if(($depth == $this->menu_start) && isset($item->split_section) && $item->split_section){
 			$this->split = true;
 		}
  		
