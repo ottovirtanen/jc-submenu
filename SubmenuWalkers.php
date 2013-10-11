@@ -205,13 +205,20 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 	private $hierarchical = true;
 	private $output = true;
 
-	private $split = false;
+	private $split = false; 	// is in current split menu section
+	private $menu_start = 0; 	// menu start depth
+	private $menu_depth = 0; 	// menu depth
+
+	private $section_menu = false;
+	private $_section_ids = array();
 
 	public function __construct($args = array()){
 		$this->hierarchical = isset($args['hierarchical']) && $args['hierarchical'] == 0 ? 0 : 1;
 		$this->split_menu = isset($args['split_menu']) ? true : false;
+		$this->section_menu = isset($args['section_menu']) && is_bool($args['section_menu']) ? $args['section_menu'] : false;
 			
-		// Display Menu Section
+		// Display Split Menu Section
+		$this->menu_start_item = isset($args['menu_item']) ? intval($args['menu_item']) : 0;
 		$this->menu_start = isset($args['menu_start']) ? intval($args['menu_start']) : 0;
 		$this->menu_depth = isset($args['menu_depth']) ? intval($args['menu_depth']) : 5;
 		$this->show_parent = isset($args['show_parent'])  && $args['show_parent'] == 1 ? 1 : 0;
@@ -226,8 +233,10 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 			$this->split = true;
 		}
  		
- 		if(($this->output && $item->ID != $this->menu_item && !$this->split_menu) 
- 			|| ($this->split == true && $depth <= ($this->menu_start + $this->menu_depth) && ($depth > $this->menu_start || $this->show_parent == 1))){
+ 		if(($this->output && $item->ID != $this->menu_item && !$this->split_menu && !$this->section_menu) 
+ 			|| ($this->split == true && $depth <= ($this->menu_start + $this->menu_depth) && ($depth > $this->menu_start || $this->show_parent == 1))
+ 			 || ($this->section_menu == true && $depth <= $this->menu_depth)){	// split menu
+ 			
 			parent::start_el($output, $item, $depth, $args);
 		}
 
@@ -244,18 +253,19 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		}
 
 		if(($this->output && $item->ID != $this->menu_item && !$this->split_menu) 
-			|| ($this->split == true && $depth <= ($this->menu_start + $this->menu_depth) && ($depth > $this->menu_start || $this->show_parent == 1))){
+			|| ($this->split == true && $depth <= ($this->menu_start + $this->menu_depth) && ($depth > $this->menu_start || $this->show_parent == 1))){ // split menu
+
 			parent::end_el($output, $item, $depth, $args);
 		}
 	}
 
 	function start_lvl( &$output, $depth = 0, $args = array() ) {
-		if($this->hierarchical == 1)
+		if( $this->hierarchical == 1 )
 			parent::start_lvl($output, $depth, $args);
 	}
  
 	function end_lvl( &$output, $depth = 0, $args = array() ) {
-		if($this->hierarchical == 1)
+		if( $this->hierarchical == 1 )
 			parent::end_lvl($output, $depth, $args);
 	}
 
@@ -390,6 +400,24 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 				}
 
 			}
+		}
+
+		// process section of menu
+		if($this->section_menu == true){
+			$new_elems = array();
+			$old_elems = $elements;
+
+			foreach($old_elems as $item){
+				if(($this->menu_start_item == $item->db_id && $this->show_parent == 1) || $item->menu_item_parent == $this->menu_start_item || in_array($item->menu_item_parent, $this->_section_ids)){
+					$new_elems[] = $item;
+
+					if(!in_array($item->db_id, $this->_section_ids)){
+						$this->_section_ids[] = $item->db_id;	
+					}
+				}
+			}
+
+			$elements = $new_elems;
 		}
 
 		/*

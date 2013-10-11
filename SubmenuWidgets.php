@@ -8,7 +8,7 @@
  * @author James Collings <james@jclabs.co.uk>
  * @version 0.0.1
  */
-class JC_Adv_Menu_Widget extends WP_Widget {
+class JC_Split_Menu_Widget extends WP_Widget {
  	
  	/**
  	 * Register Widget
@@ -37,14 +37,12 @@ class JC_Adv_Menu_Widget extends WP_Widget {
  
 		if ( ! empty( $title ) )
 			echo $before_title . $title . $after_title;
- 
-		wp_nav_menu( array('menu' => $instance['menu'], 'walker' => new JC_Submenu_Nav_Walker(array(
+
+		do_action('jcs/split_menu', $instance['menu'], array( 
 			'hierarchical' => $instance['menu_hierarchy'],
 			'menu_start' => $instance['menu_start'],
 			'menu_depth' => $instance['menu_depth'],
 			'show_parent' => $instance['show_parent'],
-			'split_menu' => true
-			))
 		));
  
 		echo $after_widget;
@@ -156,4 +154,4 @@ class JC_Adv_Menu_Widget extends WP_Widget {
  
 }
  
-add_action( 'widgets_init', create_function( '', 'register_widget( "JC_Adv_Menu_Widget" );' ) );
+add_action( 'widgets_init', create_function( '', 'register_widget( "JC_Split_Menu_Widget" );' ) );
