@@ -35,6 +35,15 @@ class SubmenuModel{
 			'date' => 'Date',
 			'comment_count' => 'Total Comments',
 			'menu_order' => 'Menu Order'
+		),
+		'page' => array(
+			'post_title' => 'Page Name',
+			'menu_order' => 'Menu Order',
+			'post_date' => 'Created',
+			'post_modified' => 'Last Modified',
+			'ID' => 'Page ID',
+			'post_author' => 'Author',
+			'post_name' => 'Page Slug'
 		)
 	);
 
@@ -112,6 +121,21 @@ class SubmenuModel{
 				self::save_meta($menu_item_id, 'tax-order', $tax_order);
 				self::save_meta($menu_item_id, 'tax-orderby', $tax_orderby);
 				self::save_meta($menu_item_id, 'tax-empty', $tax_empty);
+			}elseif($type == 'page'){
+
+				$page_order = self::get_post_data($menu_item_id, 'page-order');
+				$page_orderby = self::get_post_data($menu_item_id, 'page-orderby');
+
+				// validate order
+				if(!array_key_exists($page_orderby, self::get_order_options('page'))){
+					return 0;
+				}
+				if(!in_array($page_order, array('ASC', 'DESC'))){
+					return 0;
+				}
+
+				self::save_meta($menu_item_id, 'page-order', $page_order);
+				self::save_meta($menu_item_id, 'page-orderby', $page_orderby);
 			}
 
 			// all validated save rest
@@ -225,10 +249,17 @@ class SubmenuModel{
 	 * @param string $type tax | post
 	 */
 	static function get_order_options($type){
-		if($type == 'tax'){
-			return self::$order_options['tax'];
-		}elseif($type == 'post'){
-			return self::$order_options['post'];
+
+		switch($type){
+			case 'tax':
+				return self::$order_options['tax'];
+			break;
+			case 'post':
+				return self::$order_options['post'];
+			break;
+			case 'page':
+				return self::$order_options['page'];
+			break;
 		}
 	}
 

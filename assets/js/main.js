@@ -36,9 +36,10 @@ var JC_Submenu = {
 			}
 		});
 
-		btn_label.click(function(){
+		btn_label.click(function(event){
 			$('.jc-accord-heading input:checked', $('#menu-item-'+id)).attr('checked', false);
 			btn_handle.attr('checked', 'checked').trigger('change');
+			event.preventDefault();
 		});
 
 		btn_handle.filter(":checked").trigger('change');

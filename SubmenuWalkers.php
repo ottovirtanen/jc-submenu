@@ -235,8 +235,7 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
  		
  		if(($this->output && $item->ID != $this->menu_item && !$this->split_menu && !$this->section_menu) 
  			|| ($this->split == true && $depth <= ($this->menu_start + $this->menu_depth) && ($depth > $this->menu_start || $this->show_parent == 1))
- 			 || ($this->section_menu == true && $depth <= $this->menu_depth)){	// split menu
- 			
+ 			 || ($this->section_menu == true && ( ( $this->menu_depth > 0 && $depth < $this->menu_depth ) || ( $this->menu_depth == 0 ) )  )) {	// split menu
 			parent::start_el($output, $item, $depth, $args);
 		}
 
@@ -488,10 +487,14 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		$id_field = $this->db_fields['id'];
 		$parent_field = $this->db_fields['parent'];
 		$page_elements = array();
+		$order = SubmenuModel::get_meta($e->$id_field, 'page-order');
+		$orderby = SubmenuModel::get_meta($e->$id_field, 'page-orderby');
 
 		$pages = get_pages(array( 
 			'hierarchical' => 1, 
-			'child_of' => $value 
+			'child_of' => $value,
+			'sort_order' => $order,
+			'sort_column' => $orderby 
 		));
 
 		foreach($pages as $p){
@@ -606,6 +609,34 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 			}
 			
 		}
+	}
+}
+
+class Walker_Nav_Menu_Dropdown extends JC_Submenu_Nav_Walker{
+ 
+	var $item_id = 0;
+ 
+	function __construct($id = 0){
+		$this->item_id = $id;
+	}
+ 
+	public function start_lvl(&$output, $depth){}
+ 
+	public function end_lvl(&$output, $depth){}
+ 
+	public function start_el(&$output, $item, $depth, $args){
+ 
+		$item->title = str_repeat("&nbsp;", $depth * 4) . $item->title;
+ 
+		parent::start_el($output, $item, $depth, $args);
+		if($item->ID == $this->item_id)
+			$output = str_replace('<li', '<option value="'.$item->ID.'" selected="selected"', $output);
+		else
+			$output = str_replace('<li', '<option value="'.$item->ID.'"', $output);
+	}
+ 
+	public function end_el(&$output, $item, $depth){
+		$output .= "</option>\n";
 	}
 }
 

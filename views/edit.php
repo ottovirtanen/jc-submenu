@@ -79,11 +79,16 @@
 			</select>
 		</p>
 	</div>
-
+	<?php 
+	$post_limit = SubmenuModel::get_meta($item_id, 'post-limit');
+	if(!$post_limit){
+		$post_limit = 0;
+	}
+	?>
 	<div class="jc-submenu-row jc_two_cols">
 		<p class="jc-submenu-post-limit show-post hidden">
 			<label>Post Limit</label>
-			<input type="text" id="edit-jc-submenu-post-limit-<?php echo $item_id; ?>"name="jc-submenu-post-limit[<?php echo $item_id; ?>]" value="<?php echo SubmenuModel::get_meta($item_id, 'post-limit'); ?>" />
+			<input type="text" id="edit-jc-submenu-post-limit-<?php echo $item_id; ?>"name="jc-submenu-post-limit[<?php echo $item_id; ?>]" value="<?php echo $post_limit; ?>" />
 		</p>
 	</div>
 	<!-- End of Post Population Option -->
@@ -152,6 +157,26 @@
 				'selected' => SubmenuModel::get_meta($item_id, 'populate-value')
 			));
 			?>
+		</p>
+	</div>
+
+	<?php $order_options = SubmenuModel::get_order_options('page'); ?>
+	<div class="jc-submenu-row jc_two_cols">
+		<p class="jc-submenu-page-order show-page hidden">
+			<label>Order</label>
+			<select id="edit-jc-submenu-page-orderby-<?php echo $item_id; ?>"name="jc-submenu-page-orderby[<?php echo $item_id; ?>]">
+			<?php foreach($order_options as $value => $name): ?>
+				<option value="<?php echo $value; ?>" <?php if(SubmenuModel::get_meta($item_id, 'page-orderby') == $value): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
+			<?php endforeach; ?>
+			</select>
+		</p>
+		<p class="jc-submenu-page-orderby show-page hidden">
+			<label>By</label>
+			<select id="edit-jc-submenu-page-order-<?php echo $item_id; ?>"name="jc-submenu-page-order[<?php echo $item_id; ?>]">
+			<?php foreach($orderby as $value => $name): ?>
+				<option value="<?php echo $value; ?>" <?php if(SubmenuModel::get_meta($item_id, 'page-order') == $value): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
+			<?php endforeach; ?>
+			</select>
 		</p>
 	</div>
 	<!-- End of Page Population Options -->

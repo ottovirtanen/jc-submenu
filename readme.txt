@@ -4,7 +4,7 @@ Donate link:
 Tags: submenu, menu, dynamic, custom post type, taxonomy, child pages
 Requires at least: 3.0.1
 Tested up to: 3.6
-Stable tag: 0.4
+Stable tag: 0.4.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,6 +37,14 @@ Also output a selected section of your dynamic menu through our advanced submenu
 4. JC Submenu, Advanced Submenu Widget Options
 
 == Changelog ==
+
+**0.4.1**
+
+* Added child page order support
+* Fixed Javascript jumping bug
+* Added version to js,css to fix cache problem
+* Added documentation notification link on plugin update
+* Added Menu Section Widget
 
 **0.4**
 

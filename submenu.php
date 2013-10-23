@@ -3,7 +3,7 @@
 	Plugin Name: JC Submenu
 	Plugin URI: http://jamescollings.co.uk/blog/jc-submenu-dynamic-wordpress-menu-plugin/
 	Description: Wordpress Submenu Plugin, automatically populate your navigation menus with custom post_types, taxonomies, or child pages. An easy to use plugin created to be a lightweight menu extension.
-	Version: 0.4
+	Version: 0.4.1
 	Author: James Collings
 	Author URI: http://www.jamescollings.co.uk
  */
@@ -16,10 +16,11 @@ $JCSubmenu = new JCSubmenu();
  * Core plugin file, load all required classes
  * 
  * @author James Collings <james@jclabs.co.uk>
- * @version 0.4
+ * @version 0.4.1
  */
 class JCSubmenu{
-	var $version = '0.4';
+	var $version = '0.4.1';
+	var $version_check = 41;
 	var $plugin_dir = false;
 	var $plugin_url = false;
 	var $prefix = 'jc-submenu';
@@ -64,7 +65,8 @@ class JCSubmenu{
 	function load_modules(){
 
 		include 'SubmenuWalkers.php';
-		include 'SubmenuWidgets.php';
+		include 'widgets/SectionMenuWidget.php';
+		include 'widgets/SplitMenuWidget.php';
 		include 'SubmenuModel.php';
 		SubmenuModel::init($this);
 
@@ -84,6 +86,7 @@ class JCSubmenu{
 	function output_menu_section($menu, $args = array()){
 
 		$debug = isset($args['debug']) ? $args['debug'] : false;
+		$hierarchical = isset($args['hierarchy']) ? $args['hierarchy'] : 1;
 		$start = isset($args['start']) ? $args['start'] : 0;
 		$depth = isset($args['depth']) ? $args['depth'] : 5;
 		$show_parent = isset($args['show_parent']) ? $args['show_parent'] : 1;
@@ -126,9 +129,9 @@ class JCSubmenu{
 	 */
 	function output_split_menu($menu, $args = array()){
 
-		$hierarchical = isset($args['menu_hierarchy']) ? $args['menu_hierarchy'] : 1;
-		$menu_start = isset($args['menu_start']) ? $args['menu_start'] : 0;
-		$menu_depth = isset($args['menu_depth']) ? $args['menu_depth'] : 5;
+		$hierarchical = isset($args['hierarchy']) ? $args['hierarchy'] : 1;
+		$menu_start = isset($args['start']) ? $args['start'] : 0;
+		$menu_depth = isset($args['depth']) ? $args['depth'] : 5;
 		$show_parent = isset($args['show_parent']) ? $args['show_parent'] : 1;
 
 		$options = array(
