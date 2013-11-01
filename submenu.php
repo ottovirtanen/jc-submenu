@@ -3,7 +3,7 @@
 	Plugin Name: JC Submenu
 	Plugin URI: http://jamescollings.co.uk/blog/jc-submenu-dynamic-wordpress-menu-plugin/
 	Description: Wordpress Submenu Plugin, automatically populate your navigation menus with custom post_types, taxonomies, or child pages. An easy to use plugin created to be a lightweight menu extension.
-	Version: 0.4.1
+	Version: 0.5
 	Author: James Collings
 	Author URI: http://www.jamescollings.co.uk
  */
@@ -16,11 +16,11 @@ $JCSubmenu = new JCSubmenu();
  * Core plugin file, load all required classes
  * 
  * @author James Collings <james@jclabs.co.uk>
- * @version 0.4.1
+ * @version 0.5
  */
 class JCSubmenu{
-	var $version = '0.4.1';
-	var $version_check = 41;
+	var $version = '0.5';
+	var $version_check = 50;
 	var $plugin_dir = false;
 	var $plugin_url = false;
 	var $prefix = 'jc-submenu';
@@ -41,6 +41,10 @@ class JCSubmenu{
 		// add plugin hooks
 		add_action('jcs/menu_section', array($this, 'output_menu_section'), 10, 2);
 		add_action('jcs/split_menu', array($this, 'output_split_menu'), 10, 2);
+
+		// add plugin shortcodes
+		add_shortcode( 'jcs_split_menu', array($this, 'split_menu_shortcode') );
+		add_shortcode( 'jcs_menu_section', array($this, 'menu_section_shortcode') );
 	}
 
 	/**
@@ -72,6 +76,58 @@ class JCSubmenu{
 
 		include 'SubmenuAdmin.php';
 		new SubmenuAdmin($this);
+	}
+
+	function split_menu_shortcode($atts){
+		extract(shortcode_atts( array(
+			'hierarchy' => 1,
+			'start' => 0,
+			'depth' => 5,
+			'show_parent' => 0,
+			'menu' => false
+		), $atts ));
+
+		if(!$menu)
+			return false;
+
+		ob_start();
+
+		do_action('jcs/split_menu', $menu, array(
+			'hierarchy' => $hierarchy,
+			'start' => $start,
+			'depth' => $depth,
+			'show_parent' => $show_parent,
+		));
+
+		$output = ob_get_contents();
+        ob_end_clean();
+        return $output;
+	}
+
+	function menu_section_shortcode($atts){
+		extract(shortcode_atts( array(
+			'hierarchy' => 1,
+			'start' => 0,
+			'depth' => 5,
+			'show_parent' => 0,
+			'menu' => false
+		), $atts ));
+
+		if(!$menu)
+			return false;
+
+		ob_start();
+
+		do_action('jcs/menu_section', $menu, array(
+			'hierarchy' => $hierarchy,
+			'start' => $start,
+			'depth' => $depth,
+			'show_parent' => $show_parent,
+		));
+
+		$output = ob_get_contents();
+        ob_end_clean();
+        return $output;
 	}
 
 	/**

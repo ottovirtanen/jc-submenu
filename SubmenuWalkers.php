@@ -204,13 +204,16 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 	private $menu_item_depth = -1;
 	private $hierarchical = true;
 	private $output = true;
+	private $dynamic_count = 1;
 
 	private $split = false; 	// is in current split menu section
 	private $menu_start = 0; 	// menu start depth
 	private $menu_depth = 0; 	// menu depth
 
 	private $section_menu = false;
+	private $split_menu = false;
 	private $_section_ids = array();
+	private $section_id;
 
 	public function __construct($args = array()){
 		$this->hierarchical = isset($args['hierarchical']) && $args['hierarchical'] == 0 ? 0 : 1;
@@ -226,36 +229,12 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 
 	function start_el( &$output, $item, $depth, $args ) {
 
-		/**
-		 * Check to see if depth matches menu start and is split section
-		 */
-		if(($depth == $this->menu_start) && isset($item->split_section) && $item->split_section){
-			$this->split = true;
-		}
- 		
- 		if(($this->output && $item->ID != $this->menu_item && !$this->split_menu && !$this->section_menu) 
- 			|| ($this->split == true && $depth <= ($this->menu_start + $this->menu_depth) && ($depth > $this->menu_start || $this->show_parent == 1))
- 			 || ($this->section_menu == true && ( ( $this->menu_depth > 0 && $depth < $this->menu_depth ) || ( $this->menu_depth == 0 ) )  )) {	// split menu
-			parent::start_el($output, $item, $depth, $args);
-		}
-
-
+		parent::start_el($output, $item, $depth, $args);
 	}
  
 	function end_el( &$output, $item, $depth = 0, $args = array() ) {
 
-		/**
-		 * Check to see if depth matches menu start and is split == true
-		 */
-		if($depth == $this->menu_start && $this->split == true){
-			$this->split = false;
-		}
-
-		if(($this->output && $item->ID != $this->menu_item && !$this->split_menu) 
-			|| ($this->split == true && $depth <= ($this->menu_start + $this->menu_depth) && ($depth > $this->menu_start || $this->show_parent == 1))){ // split menu
-
-			parent::end_el($output, $item, $depth, $args);
-		}
+		parent::end_el($output, $item, $depth, $args);
 	}
 
 	function start_lvl( &$output, $depth = 0, $args = array() ) {
@@ -304,11 +283,8 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 			return $output;
 		}
 
-		global $post;
-		$dynamic_count = 1;
-
 		// store the current menu section
-		$section_id = null;
+		$this->section_id = null;
 
 		/**
 		 * Loop through all menu items checking to see if if any items have been
@@ -337,86 +313,101 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 					}elseif($type == 'page'){
 						$this->populate_page_items($elements, $e, $value, $current_dynamic_parent);
 					}elseif($type == 'tax'){
-
-						// populate menu item with taxonomies
-
-						$dynamic_item_prefix = str_repeat(0, $dynamic_count);
-
-						$tax_parent_id = $e->$id_field;
-						
-						$order = SubmenuModel::get_meta($tax_parent_id, 'tax-order');
-						$orderby = SubmenuModel::get_meta($tax_parent_id, 'tax-orderby');
-						$hide = SubmenuModel::get_meta($tax_parent_id, 'tax-empty');
-
-						$terms = get_terms( $value, array(
-							'hide_empty' => $hide,
-							'order' => $order,
-							'order_by' => $orderby
-						) );
-
-						$tax_elements = array();
-
-						foreach($terms as $t){
-							$t->$id_field = $dynamic_item_prefix . $t->term_id;
-							$t->ID = $t->term_id;
-							$t->title = $t->name;
-							$t->url = get_term_link( $t, $value );
-							if($t->parent == 0){
-								$t->$parent_field = $tax_parent_id;
-								$t->test = $tax_parent_id;		
-							}else{
-								$t->$parent_field = $dynamic_item_prefix . $t->parent;
-							}
-
-							if((is_category() && is_category( $t->ID )) || (is_tag() && is_tag( $t->slug )) || is_tax( $value, $t->slug ) ){
-								$current_dynamic_parent = $t->$parent_field;
-								$t->classes = array('current-menu-item');
-								$t->split_section = true;
-							}
-							
-							$tax_elements[] = clone($t);
-						}
-
-						$elements = array_merge($elements, $tax_elements);
-
-						if($current_dynamic_parent){
-							$this->child_page_walker($elements, $current_dynamic_parent);
-						}
-
-						$dynamic_count++;						
+						$this->populate_tax_items($elements, $e, $value, $current_dynamic_parent);
 					}
 				}
-
-				if($e->current == 1 || $e->current_item_ancestor == 1 || $e->current_item_parent){
-					$section_id = $e->$id_field;
-					$e->split_section = true;
-				}
-			
-				if($current_dynamic_parent){
-					$e->classes[] = 'current-menu-ancestor';
-					$section_id = $e->$id_field;
-					$e->split_section = true;
-				}
-
 			}
 		}
 
-		// process section of menu
-		if($this->section_menu == true){
-			$new_elems = array();
-			$old_elems = $elements;
+		//Set Menu Item Depth 
+		$elements = $this->set_elements_depth($elements, 0, true);
+	
+		if($this->section_menu || $this->split_menu){		
 
-			foreach($old_elems as $item){
-				if(($this->menu_start_item == $item->db_id && $this->show_parent == 1) || $item->menu_item_parent == $this->menu_start_item || in_array($item->menu_item_parent, $this->_section_ids)){
-					$new_elems[] = $item;
+			// process section of menu
+			if($this->section_menu == true){
+				$new_elems = array();
+				$old_elems = $elements;
 
-					if(!in_array($item->db_id, $this->_section_ids)){
-						$this->_section_ids[] = $item->db_id;	
+				foreach($old_elems as $item){
+					if(($this->menu_start_item == $item->db_id && $this->show_parent == 1) || $item->menu_item_parent == $this->menu_start_item || in_array($item->menu_item_parent, $this->_section_ids)){
+
+						// set depth start from first item
+						if(empty($new_elems)){
+							$this->menu_start = $item->menu_depth;
+
+							if($this->show_parent)
+								$this->menu_depth++;
+						}
+
+						$new_elems[] = $item;	
+
+						if(!in_array($item->db_id, $this->_section_ids)){
+							$this->_section_ids[] = $item->db_id;	
+						}
 					}
+				}
+			}
+
+			// process split menu
+			if($this->split_menu == true){
+				
+				$new_elems = array();
+				$old_elems = $elements;
+				$section_parents = array($this->section_id);
+				$parent_elem = false;
+				$parent_count = 0;
+
+				if($this->show_parent && $this->menu_start > 0){
+					$this->menu_start--;
+					$this->menu_depth++;
+				}
+
+				while($parent_count < count($section_parents)){
+
+					$parent_count = count($section_parents);
+
+					foreach($old_elems as $elm){
+
+						if(!$parent_elem && $elm->$id_field == $this->section_id){
+							$new_elems[] = $elm;
+							$parent_elem = true;
+						}
+
+						if(in_array($elm->$parent_field, $section_parents) && !in_array($elm->$id_field, $section_parents)){
+							$section_parents[] = $elm->$id_field;
+							$new_elems[] = $elm;
+						}
+					}	
+				}
+			}
+
+			// process elements to display
+			foreach($new_elems as $k => $elm){
+
+				if($elm->menu_depth > $this->menu_start){
+					
+					if($elm->menu_depth >= ($this->menu_start + $this->menu_depth)){
+						// remove items that are too deep
+						unset($new_elems[$k]);
+					}
+				}elseif($elm->menu_depth == $this->menu_start){
+
+					// need to change to parent = 0
+					$new_elems[$k]->$parent_field = 0;
+				}else{
+
+					// unset elements beneath
+					unset($new_elems[$k]);
 				}
 			}
 
 			$elements = $new_elems;
+		}
+
+		// escape if no elements are left
+		if(empty($elements)){
+			return false;
 		}
 
 		/*
@@ -473,6 +464,69 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		 return $output;
 	}
 
+	public function set_elements_depth($elements, $parent = 0, $menu = false){
+		/**
+		 * Set Menu Item Depth
+		 */
+		$menu_depths = array();
+		$menu_elements = array();
+		$id_field = $this->db_fields['id'];
+		$parent_field = $this->db_fields['parent'];
+		$counter = 0;
+
+		$depth_field = $menu ? 'menu_depth' : 'depth';
+
+		while(count($menu_elements) < count($elements) && $counter < 5){
+
+			foreach($elements as $k => $e){
+				if($e->$parent_field == $parent){
+
+					if(!isset($menu_depths[0]) || !is_array($menu_depths[0])){
+						$menu_depths[0] = array();
+					}
+
+					// add id to $menu_elements
+					if(!isset($elements[$k]->$depth_field)){
+						$menu_elements[] = $e->$id_field;
+						$menu_depths[0][] = $e->$id_field;
+						$elements[$k]->$depth_field = 0;	
+					}
+
+				}else{
+
+					$break = false;
+					foreach($menu_depths as $tax_depth => $parents){
+						foreach($parents as $parent_id){
+							
+							if($e->$parent_field == $parent_id){
+
+								if(!isset($menu_depths[$tax_depth+1]) || !is_array($menu_depths[$tax_depth+1])){
+									$menu_depths[$tax_depth+1] = array();
+								}
+
+								// add id to $menu_elements
+								if(!isset($elements[$k]->$depth_field)){
+									$menu_elements[] = $e->$id_field;	
+									$menu_depths[$tax_depth+1][] = $e->$id_field;
+									$elements[$k]->$depth_field = $tax_depth+1;
+								}
+								
+								$break = true;
+								continue;
+							}
+						}
+
+						if($break)
+							continue;
+					}
+				}
+			}
+			$counter++;
+		}
+
+		return $elements;
+	}
+
 	/**
 	 * Populate menu item with pages
 	 * 
@@ -489,12 +543,14 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		$page_elements = array();
 		$order = SubmenuModel::get_meta($e->$id_field, 'page-order');
 		$orderby = SubmenuModel::get_meta($e->$id_field, 'page-orderby');
+		$exclude = SubmenuModel::get_meta($e->$id_field, 'page-exclude');
 
 		$pages = get_pages(array( 
 			'hierarchical' => 1, 
 			'child_of' => $value,
 			'sort_order' => $order,
-			'sort_column' => $orderby 
+			'sort_column' => $orderby ,
+			'exclude' => $exclude
 		));
 
 		foreach($pages as $p){
@@ -524,6 +580,8 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		}
 
 		$elements = array_merge($elements, $page_elements);
+
+		$this->set_menu_item_state($e, $current_dynamic_parent);
 	}
 
 	/**
@@ -592,6 +650,94 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		if($current_dynamic_parent){
 			$this->child_page_walker($elements, $current_dynamic_parent);
 		}
+
+		$this->set_menu_item_state($e, $current_dynamic_parent);
+	}
+
+	public function populate_tax_items(&$elements, $e, $value, &$current_dynamic_parent){
+
+		global $post;
+		$id_field = $this->db_fields['id'];
+		$parent_field = $this->db_fields['parent'];
+
+		$dynamic_item_prefix = str_repeat(0, $this->dynamic_count);
+
+		$tax_parent_id = $e->$id_field;
+		
+		$order = SubmenuModel::get_meta($tax_parent_id, 'tax-order');
+		$orderby = SubmenuModel::get_meta($tax_parent_id, 'tax-orderby');
+		$hide = SubmenuModel::get_meta($tax_parent_id, 'tax-empty');
+		$tax_max_depth = intval(SubmenuModel::get_meta($tax_parent_id, 'tax-depth'));
+
+		$terms = get_terms( $value, array(
+			'hide_empty' => $hide,
+			'order' => $order,
+			'order_by' => $orderby
+		) );
+
+		$tax_elements = array();
+
+
+		foreach($terms as $t){
+			$t->$id_field = $dynamic_item_prefix . $t->term_id;
+			$t->ID = $t->term_id;
+			$t->title = $t->name;
+			$t->url = get_term_link( $t, $value );
+			
+			if($t->parent == 0){
+				$t->$parent_field = $tax_parent_id;
+				$t->test = $tax_parent_id;
+			}else{
+				$t->$parent_field = $dynamic_item_prefix . $t->parent;
+			}
+
+			if((is_category() && is_category( $t->ID )) || (is_tag() && is_tag( $t->slug )) || is_tax( $value, $t->slug ) || ( is_singular() && has_term( $t->term_id, $value ) ) ){
+				$current_dynamic_parent = $t->$parent_field;
+				$t->classes = array('current-menu-item');
+				$t->split_section = true;
+			}
+			
+			$tax_elements[] = clone($t);	
+		}
+
+		// term depth
+		if($tax_max_depth > 0){
+			$tax_elements = $this->set_elements_depth($tax_elements, $tax_parent_id);
+			
+			foreach($tax_elements as $tag_key => $tag_elem){
+				
+				if($tag_elem->depth >= $tax_max_depth){
+					unset($tax_elements[$tag_key]);
+				}
+			}
+		}
+
+		$elements = array_merge($elements, $tax_elements);
+
+		if($current_dynamic_parent){
+			$this->child_page_walker($elements, $current_dynamic_parent);
+		}
+
+		$this->dynamic_count++;
+
+		$this->set_menu_item_state($e, $current_dynamic_parent);
+	}
+
+	public function set_menu_item_state($item, $current_dynamic_parent){
+
+		$id_field = $this->db_fields['id'];
+		$parent_field = $this->db_fields['parent'];
+
+		if($item->current == 1 || $item->current_item_ancestor == 1 || $item->current_item_parent){
+			$this->section_id = $item->$id_field;
+			$item->split_section = true;
+		}
+	
+		if($current_dynamic_parent){
+			$item->classes[] = 'current-menu-ancestor';
+			$this->section_id = $item->$id_field;
+			$item->split_section = true;
+		}
 	}
 
 	public function child_page_walker(&$elements, $parent){
@@ -612,7 +758,7 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 	}
 }
 
-class Walker_Nav_Menu_Dropdown extends JC_Submenu_Nav_Walker{
+class JC_Walker_Nav_Menu_Dropdown extends JC_Submenu_Nav_Walker{
  
 	var $item_id = 0;
  

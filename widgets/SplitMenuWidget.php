@@ -38,7 +38,7 @@ class JC_Split_Menu_Widget extends WP_Widget {
 			echo $before_title . $title . $after_title;
 
 		do_action('jcs/split_menu', $instance['menu'], array( 
-			'hierarchical' => $instance['menu_hierarchy'],
+			'hierarchy' => $instance['menu_hierarchy'],
 			'start' => $instance['menu_start'],
 			'depth' => $instance['menu_depth'],
 			'show_parent' => $instance['show_parent'],

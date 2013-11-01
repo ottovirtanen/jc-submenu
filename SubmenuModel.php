@@ -107,6 +107,7 @@ class SubmenuModel{
 				$tax_order = self::get_post_data($menu_item_id, 'tax-order');
 				$tax_orderby = self::get_post_data($menu_item_id, 'tax-orderby');
 				$tax_empty = self::get_post_data($menu_item_id, 'tax-empty');
+				$tax_depth = self::get_post_data($menu_item_id, 'tax-depth');
 
 				$tax_empty = $tax_empty == 1 ? 1 : 0; 
 
@@ -121,10 +122,12 @@ class SubmenuModel{
 				self::save_meta($menu_item_id, 'tax-order', $tax_order);
 				self::save_meta($menu_item_id, 'tax-orderby', $tax_orderby);
 				self::save_meta($menu_item_id, 'tax-empty', $tax_empty);
+				self::save_meta($menu_item_id, 'tax-depth', intval($tax_depth));
 			}elseif($type == 'page'){
 
 				$page_order = self::get_post_data($menu_item_id, 'page-order');
 				$page_orderby = self::get_post_data($menu_item_id, 'page-orderby');
+				$page_exclude = self::get_post_data($menu_item_id, 'page-exclude');
 
 				// validate order
 				if(!array_key_exists($page_orderby, self::get_order_options('page'))){
@@ -136,6 +139,7 @@ class SubmenuModel{
 
 				self::save_meta($menu_item_id, 'page-order', $page_order);
 				self::save_meta($menu_item_id, 'page-orderby', $page_orderby);
+				self::save_meta($menu_item_id, 'page-exclude', $page_exclude);
 			}
 
 			// all validated save rest

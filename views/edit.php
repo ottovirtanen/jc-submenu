@@ -134,6 +134,12 @@
 		</p>
 	</div>
 	<div class="jc-submenu-row jc_two_cols">
+		<p class="jc-submenu-tax-depth show-tax hidden">
+			<label>Depth</label>
+			<input type="text" id="edit-jc-submenu-tax-depth-<?php echo $item_id; ?>"name="jc-submenu-tax-depth[<?php echo $item_id; ?>]" value="<?php echo SubmenuModel::get_meta($item_id, 'tax-depth'); ?>" />
+		</p>
+	</div>
+	<div class="jc-submenu-row jc_two_cols">
 		<p class="jc-submenu-tax-empty show-tax hidden">
 			<input type="checkbox" value="1" name="jc-submenu-tax-empty[<?php echo $item_id; ?>]" id="edit-jc-submenu-tax-empty-<?php echo $item_id; ?>" <?php if(SubmenuModel::get_meta($item_id, 'tax-empty') == 1): ?> checked="checked"<?php endif; ?>>
 			Hide Empty Terms
@@ -179,5 +185,28 @@
 			</select>
 		</p>
 	</div>
+
+	<div class="jc-submenu-row jc_two_cols">
+		<p class="jc-submenu-page-exclude show-page hidden">
+			<label>Exclude Pages</label>
+			<?php 
+			$pages = get_pages();
+			$options = SubmenuModel::get_meta($item_id, 'page-exclude');
+			?>
+			<select id="edit-jc-submenu-page-exclude<?php echo $item_id; ?>"name="jc-submenu-page-exclude[<?php echo $item_id; ?>][]" multiple="multiple">
+				<?php
+				foreach($pages as $page){
+					if(in_array($page->ID, $options)){
+						echo '<option value="'.$page->ID.'" selected="selected">'.$page->post_title.' (ID: '.$page->ID.')</option>';
+					}else{
+						echo '<option value="'.$page->ID.'">'.$page->post_title.' (ID: '.$page->ID.')</option>';	
+					}
+					
+				}
+				?>
+			</select>
+		</p>
+	</div>
+
 	<!-- End of Page Population Options -->
 </div>

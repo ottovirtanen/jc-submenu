@@ -83,16 +83,28 @@ class JC_Section_Menu_Widget extends WP_Widget {
 					wp_nav_menu(array(
 					  'menu' => $m->slug, // your theme location here
 					  'container' => false,
-					  'walker'         => new Walker_Nav_Menu_Dropdown($menu_item),
+					  'walker'         => new JC_Walker_Nav_Menu_Dropdown($menu_item),
 					  'items_wrap'     => $items_wrap,
 					));
 				} ?>
 			</select>
 		</p>
 
+		<?php $max_level = 5; ?>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'menu_depth' ); ?>"><?php _e( 'Menu Depth:' ); ?></label> 
-			<input class="widefat" id="<?php echo $this->get_field_id( 'menu_depth' ); ?>" name="<?php echo $this->get_field_name( 'menu_depth' ); ?>" type="text" value="<?php echo esc_attr( $menu_depth ); ?>" />
+			<select class="widefat" id="<?php echo $this->get_field_id( 'menu_depth' ); ?>" name="<?php echo $this->get_field_name( 'menu_depth' ); ?>" >
+
+				<?php 
+				for($x=1; $x <= $max_level; $x++){
+					$selected = '';
+					if($x == $menu_depth){
+						$selected = ' selected="selected"';
+					}
+					echo '<option value="'.$x.'"'.$selected.'>'.$x.'</option>';
+				}
+				?>
+			</select>
 		</p>
 
 		<p>
