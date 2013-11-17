@@ -4,7 +4,7 @@ Donate link:
 Tags: submenu, menu, dynamic, custom post type, taxonomy, child pages
 Requires at least: 3.0.1
 Tested up to: 3.6
-Stable tag: 0.5
+Stable tag: 0.5.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -25,6 +25,8 @@ Also output a selected section of your dynamic menu through our advanced submenu
 1. Optional - If your theme already has a custom walker specified for outputing your menu, JC Submenu will not automatically override it, to do this locate the file your theme outputs the menu (usually header.php) and look for "wp\_nav\_menu()", and pass an extra argument so it looks similar:
 		 
 `wp_nav_menu(array('walker' => new JC_Submenu_Nav_Walker()));`
+
+For further documentation on installing and using JC Submneu features can be found [here](http://jamescollings.co.uk/wordpress-plugins/jc-submenu/).
 
 == Frequently asked questions ==
 

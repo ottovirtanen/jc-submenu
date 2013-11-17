@@ -3,12 +3,10 @@
 	Plugin Name: JC Submenu
 	Plugin URI: http://jamescollings.co.uk/blog/jc-submenu-dynamic-wordpress-menu-plugin/
 	Description: Wordpress Submenu Plugin, automatically populate your navigation menus with custom post_types, taxonomies, or child pages. An easy to use plugin created to be a lightweight menu extension.
-	Version: 0.5
+	Version: 0.5.1
 	Author: James Collings
 	Author URI: http://www.jamescollings.co.uk
  */
-	
-$JCSubmenu = new JCSubmenu();
 
 /**
  * JC Submenu Class
@@ -16,11 +14,12 @@ $JCSubmenu = new JCSubmenu();
  * Core plugin file, load all required classes
  * 
  * @author James Collings <james@jclabs.co.uk>
- * @version 0.5
+ * @version 0.5.1
  */
 class JCSubmenu{
-	var $version = '0.5';
-	var $version_check = 50;
+
+	var $version = '0.5.1';
+	var $version_check = 51;
 	var $plugin_dir = false;
 	var $plugin_url = false;
 	var $prefix = 'jc-submenu';
@@ -68,7 +67,9 @@ class JCSubmenu{
 	 */
 	function load_modules(){
 
-		include 'SubmenuWalkers.php';
+		include 'walkers/AdminMenuWalker.php';
+		include 'walkers/SubmenuWalker.php';
+		include 'walkers/DropdownWalker.php';
 		include 'widgets/SectionMenuWidget.php';
 		include 'widgets/SplitMenuWidget.php';
 		include 'SubmenuModel.php';
@@ -78,6 +79,14 @@ class JCSubmenu{
 		new SubmenuAdmin($this);
 	}
 
+	/**
+	 * Slit Menu Section Shortcode
+	 *
+	 * Display a dynamic split menu section via wordpress shortcode tags
+	 * 
+	 * @param  array $atts 
+	 * @return string
+	 */
 	function split_menu_shortcode($atts){
 		extract(shortcode_atts( array(
 			'hierarchy' => 1,
@@ -104,6 +113,14 @@ class JCSubmenu{
         return $output;
 	}
 
+	/**
+	 * Menu Section Shortcode
+	 *
+	 * Display section of menu via wordpress shortcode tags
+	 * 
+	 * @param  array $atts 
+	 * @return string
+	 */
 	function menu_section_shortcode($atts){
 		extract(shortcode_atts( array(
 			'hierarchy' => 1,
@@ -145,7 +162,7 @@ class JCSubmenu{
 		$hierarchical = isset($args['hierarchy']) ? $args['hierarchy'] : 1;
 		$start = isset($args['start']) ? $args['start'] : 0;
 		$depth = isset($args['depth']) ? $args['depth'] : 5;
-		$show_parent = isset($args['show_parent']) ? $args['show_parent'] : 1;
+		$show_parent = isset($args['show_parent']) ? $args['show_parent'] : 0;
 		
 		$options = array('menu' => $menu, 'walker' => new JC_Submenu_Nav_Walker(array(
 			'debug' => $debug, 
@@ -188,7 +205,7 @@ class JCSubmenu{
 		$hierarchical = isset($args['hierarchy']) ? $args['hierarchy'] : 1;
 		$menu_start = isset($args['start']) ? $args['start'] : 0;
 		$menu_depth = isset($args['depth']) ? $args['depth'] : 5;
-		$show_parent = isset($args['show_parent']) ? $args['show_parent'] : 1;
+		$show_parent = isset($args['show_parent']) ? $args['show_parent'] : 0;
 
 		$options = array(
 			'menu' => $menu, 'walker' => new JC_Submenu_Nav_Walker(array(
@@ -218,4 +235,6 @@ class JCSubmenu{
 		wp_nav_menu($options);
 	}
 }
+
+$GLOBALS['jcsubmenu'] = new JCSubmenu();
 ?>
