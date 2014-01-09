@@ -422,7 +422,7 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 			'post_type' => $value, 
 			'posts_per_page' => $limit,
 			'order' => $order,
-			'order_by' => $orderby
+			'orderby' => $orderby
 		);
 
 		// add taxonomy filter
@@ -481,12 +481,15 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		$order = SubmenuModel::get_meta($tax_parent_id, 'tax-order');
 		$orderby = SubmenuModel::get_meta($tax_parent_id, 'tax-orderby');
 		$hide = SubmenuModel::get_meta($tax_parent_id, 'tax-empty');
+		$exclude = SubmenuModel::get_meta($tax_parent_id, 'tax-exclude');
 		$tax_max_depth = intval(SubmenuModel::get_meta($tax_parent_id, 'tax-depth'));
 
 		$terms = get_terms( $value, array(
 			'hide_empty' => $hide,
 			'order' => $order,
-			'order_by' => $orderby
+			'orderby' => $orderby,
+			// 'exclude' => $exclude,
+			'exclude_tree' => $exclude
 		) );
 
 		$tax_elements = array();

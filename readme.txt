@@ -3,8 +3,8 @@ Contributors: jcollings
 Donate link: 
 Tags: submenu, menu, dynamic, custom post type, taxonomy, child pages
 Requires at least: 3.0.1
-Tested up to: 3.6
-Stable tag: 0.5.1
+Tested up to: 3.8
+Stable tag: 0.5.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,6 +39,11 @@ For further documentation on installing and using JC Submneu features can be fou
 4. JC Submenu, Advanced Submenu Widget Options
 
 == Changelog ==
+
+**0.5.2**
+
+* Fixed SubmenuWalker replaces order_by with orderby
+* Added in basic CSV input taxonomy term exclusion.
 
 **0.5**
 

@@ -134,6 +134,14 @@
 		</p>
 	</div>
 	<div class="jc-submenu-row jc_two_cols">
+		<p class="jc-submenu-tax-exclude show-tax hidden">
+			<?php
+			$tax_exclude = SubmenuModel::get_meta($item_id, 'tax-exclude');
+			$tax_exclude = implode(',', $tax_exclude);
+			?>
+			<label>Exclude Terms (CSV of ID's)</label>
+			<input type="text" id="edit-jc-submenu-tax-exclude-<?php echo $item_id; ?>"name="jc-submenu-tax-exclude[<?php echo $item_id; ?>]" value="<?php echo $tax_exclude; ?>" />
+		</p>
 		<p class="jc-submenu-tax-depth show-tax hidden">
 			<label>Depth</label>
 			<input type="text" id="edit-jc-submenu-tax-depth-<?php echo $item_id; ?>"name="jc-submenu-tax-depth[<?php echo $item_id; ?>]" value="<?php echo SubmenuModel::get_meta($item_id, 'tax-depth'); ?>" />
@@ -145,6 +153,7 @@
 			Hide Empty Terms
 		</p>
 	</div>
+
 	<!-- End of Taxonomy Population Options -->
 
 	<p id="accord-heading-page-<?php echo $item_id; ?>" class="jc-submenu-populate-page jc-accord-heading">
