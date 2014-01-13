@@ -137,7 +137,7 @@
 		<p class="jc-submenu-tax-exclude show-tax hidden">
 			<?php
 			$tax_exclude = SubmenuModel::get_meta($item_id, 'tax-exclude');
-			$tax_exclude = implode(',', $tax_exclude);
+			$tax_exclude = $tax_exclude ? implode(',', $tax_exclude) : '';
 			?>
 			<label>Exclude Terms (CSV of ID's)</label>
 			<input type="text" id="edit-jc-submenu-tax-exclude-<?php echo $item_id; ?>"name="jc-submenu-tax-exclude[<?php echo $item_id; ?>]" value="<?php echo $tax_exclude; ?>" />
@@ -205,7 +205,7 @@
 			<select id="edit-jc-submenu-page-exclude<?php echo $item_id; ?>"name="jc-submenu-page-exclude[<?php echo $item_id; ?>][]" multiple="multiple">
 				<?php
 				foreach($pages as $page){
-					if(in_array($page->ID, $options)){
+					if(is_array($options) && in_array($page->ID, $options)){
 						echo '<option value="'.$page->ID.'" selected="selected">'.$page->post_title.' (ID: '.$page->ID.')</option>';
 					}else{
 						echo '<option value="'.$page->ID.'">'.$page->post_title.' (ID: '.$page->ID.')</option>';	
