@@ -161,6 +161,50 @@ var JC_Submenu = {
 		tax_select.trigger('change');
 	});
 
+	/**
+	 * Filter Taxonomy Terms depending on chosen taxonomy
+	 * @since  0.5.4
+	 */
+	$('select[id^="edit-jc-submenu-populate-tax"]').each(function(){
+
+		var tax_select = $(this);
+		var id = JC_Submenu.get_menu_id(tax_select.attr('id'));
+		var term_select = $('select[id^="edit-jc-submenu-tax-term"]', $('#menu-item-'+id));
+		var terms = term_select.clone();
+
+		tax_select.live('change', function(){
+
+			var tax = tax_select.find(':selected').val();
+			var selected = term_select.find(':selected').val();
+
+			term_select.empty();
+
+			$('option', terms).each(function(index){
+				var val = $(this).val();
+
+				if(tax == $(this).data('tax') || $(this).data('tax') == 0){
+					var clone_option = $(this).clone().attr('selected', false);
+					if(val == selected){
+						term_select.append(clone_option.attr('selected', 'selected'));
+					}else{
+						term_select.append(clone_option);	
+					}
+				}else{
+					term_select.find('option[value='+val+']').remove();
+				}
+			});
+
+			if(term_select.find('option').size() == 1){
+				term_select.parent().hide();
+			}else{
+				term_select.parent().show();
+			}
+
+		});
+
+		tax_select.trigger('change');
+	});
+
 
      /**
      * Document Ready

@@ -102,6 +102,7 @@
 	<!-- Taxonomy Population Options -->
 	<?php $taxs = get_taxonomies( array('public' => true) ); ?>
 	<div class="jc-submenu-row jc_two_cols">
+
 		<p class="jc-submenu-populate-tax show-tax hidden">
 			<label>Taxonomies</label>
 			<select id="edit-jc-submenu-populate-tax-<?php echo $item_id; ?>"name="jc-submenu-populate-tax[<?php echo $item_id; ?>]">
@@ -109,6 +110,20 @@
 				<?php if($slug == 'post_format'){ continue; } ?>
 				<option value="<?php echo $slug; ?>" <?php if(SubmenuModel::get_meta($item_id, 'populate-value') == $slug): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
 			<?php endforeach; ?>
+			</select>
+		</p>
+
+		<p class="jc-submenu-tax-term show-tax hidden">
+			<label>Terms</label>
+			<select id="edit-jc-submenu-tax-term-<?php echo $item_id; ?>"name="jc-submenu-tax-term[<?php echo $item_id; ?>]">
+				<option value="0" data-tax="0">All</option>
+				<?php foreach($taxs as $slug => $name): ?>
+
+					<?php $terms = get_terms( $slug, array('hide_empty' => false) ); ?>
+					<?php foreach($terms as $term): ?>
+						<option value="<?php echo $term->term_id; ?>" data-tax="<?php echo $slug; ?>" <?php if(SubmenuModel::get_meta($item_id, 'tax-term') == $term->term_id): ?>selected="selected"<?php endif; ?>><?php echo $term->name; ?></option>
+					<?php endforeach; ?>
+				<?php endforeach; ?>
 			</select>
 		</p>
 	</div>

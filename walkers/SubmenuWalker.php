@@ -483,13 +483,15 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		$hide = SubmenuModel::get_meta($tax_parent_id, 'tax-empty');
 		$exclude = SubmenuModel::get_meta($tax_parent_id, 'tax-exclude');
 		$tax_max_depth = intval(SubmenuModel::get_meta($tax_parent_id, 'tax-depth'));
+		$tax_term = intval(SubmenuModel::get_meta($tax_parent_id, 'tax-term'));
 
 		$terms = get_terms( $value, array(
 			'hide_empty' => $hide,
 			'order' => $order,
 			'orderby' => $orderby,
 			// 'exclude' => $exclude,
-			'exclude_tree' => $exclude
+			'exclude_tree' => $exclude,
+			'child_of' => $tax_term
 		) );
 
 		$tax_elements = array();
@@ -501,7 +503,7 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 			$t->title = $t->name;
 			$t->url = get_term_link( $t, $value );
 			
-			if($t->parent == 0){
+			if($t->parent == 0 || $t->parent == $tax_term){
 				$t->$parent_field = $tax_parent_id;
 				$t->test = $tax_parent_id;
 			}else{
