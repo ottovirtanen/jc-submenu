@@ -4,7 +4,7 @@ Donate link:
 Tags: submenu, menu, dynamic, custom post type, taxonomy, child pages
 Requires at least: 3.0.1
 Tested up to: 3.8
-Stable tag: 0.5.4
+Stable tag: 0.5.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,6 +39,18 @@ For further documentation on installing and using JC Submneu features can be fou
 4. JC Submenu, Advanced Submenu Widget Options
 
 == Changelog ==
+
+**0.5.5**
+
+* Add class filter jcs/item_classes
+* Add class filter jcs/term_item_classes
+* Add class filter jcs/post_item_classes
+* Add class filter jcs/page_item_classes
+* Add WP_Query arguments filter jcs/post_query_args, jcs/post_$menu-item-id_query_args
+* Add get_pages arguments filter jcs/page_query_args, jcs/page_$menu-item-id_query_args
+* Add get_terms arguments filter jcs/term_query_args, jcs/term_$menu-item-id_query_args
+* Ouput post_type with hierarchy
+* Removed php strict warnings
 
 **0.5.4**
 

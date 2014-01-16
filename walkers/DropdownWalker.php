@@ -7,11 +7,11 @@ class JC_Walker_Nav_Menu_Dropdown extends JC_Submenu_Nav_Walker{
 		$this->item_id = $id;
 	}
  
-	public function start_lvl(&$output, $depth){}
+	public function start_lvl(&$output, $depth = 0, $args = array()){}
  
-	public function end_lvl(&$output, $depth){}
+	public function end_lvl(&$output, $depth = 0, $args = array()){}
  
-	public function start_el(&$output, $item, $depth, $args){
+	public function start_el(&$output, $item, $depth = 0, $args = array(),  $current_object_id = 0){
  
 		$item->title = str_repeat("&nbsp;", $depth * 4) . $item->title;
  
@@ -22,7 +22,7 @@ class JC_Walker_Nav_Menu_Dropdown extends JC_Submenu_Nav_Walker{
 			$output = str_replace('<li', '<option value="'.$item->ID.'"', $output);
 	}
  
-	public function end_el(&$output, $item, $depth){
+	public function end_el(&$output, $item, $depth = 0, $args = array()){
 		$output .= "</option>\n";
 	}
 }

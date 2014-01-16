@@ -25,9 +25,9 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		$this->show_parent = isset($args['show_parent'])  && $args['show_parent'] == 1 ? 1 : 0;
 	}
 
-	function start_el( &$output, $item, $depth, $args ) {
+	function start_el( &$output, $item, $depth = 0, $args = array(), $current_object_id = 0 ) {
 
-		parent::start_el($output, $item, $depth, $args);
+		parent::start_el($output, $item, $depth, $args, $current_object_id);
 	}
  
 	function end_el( &$output, $item, $depth = 0, $args = array() ) {
@@ -359,19 +359,27 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		$orderby = SubmenuModel::get_meta($e->$id_field, 'page-orderby');
 		$exclude = SubmenuModel::get_meta($e->$id_field, 'page-exclude');
 
-		$pages = get_pages(array( 
+		$page_query = array( 
 			'hierarchical' => 1, 
 			'child_of' => $value,
 			'sort_order' => $order,
 			'sort_column' => $orderby ,
 			'exclude' => $exclude
-		));
+		);
+
+		// apply filters
+		$page_query = apply_filters( 'jcs/page_query_args', $page_query );
+		$page_query = apply_filters('jcs/page_'.$e->$id_field.'_query_args', $page_query );
+
+		// run page query
+		$pages = get_pages($page_query);
 
 		foreach($pages as $p){
 			
 			$p->$id_field = $p->ID;
 			$p->title = $p->post_title;
 			$p->url = get_permalink( $p->ID);
+			$p->classes = array();
 
 			if($p->post_parent == $value){
 				$p->$parent_field = $e->$id_field;
@@ -379,10 +387,14 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 				$p->$parent_field = $p->post_parent;
 			}
 
+			// add classes
+			$p->classes = apply_filters( 'jcs/item_classes', $p->classes, $p->ID);
+			$p->classes = apply_filters( 'jcs/page_item_classes', $p->classes, $p->ID);
+
 			// check if this page is the current page
 			if( is_page($p->ID) && $post->ID == $p->ID){
 				$current_dynamic_parent = $p->$parent_field;
-				$p->classes = array('current-menu-item');
+				$p->classes[] = 'current-menu-item';
 				$p->split_section = true;
 			}
 			
@@ -438,6 +450,10 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 			);
 		}
 
+		// apply filters
+		$post_query = apply_filters( 'jcs/post_query_args', $post_query );
+		$post_query = apply_filters('jcs/post_'.$e->$id_field.'_query_args', $post_query );
+
 		// run post type query
 		$post_type_query = new WP_Query($post_query);
 
@@ -449,11 +465,25 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 				$p->title = $p->post_title;
 				$p->url = get_permalink( $p->ID);
 				$p->$parent_field = $e->$id_field;
+				$p->classes = array();
+
+				if(is_post_type_hierarchical($value )){
+
+					if($p->post_parent == $value){
+						$p->$parent_field = $e->$id_field;
+					}else{
+						$p->$parent_field = $p->post_parent;
+					}
+				}
+
+				// add classes
+				$p->classes = apply_filters( 'jcs/item_classes', $p->classes, $p->ID);
+				$p->classes = apply_filters( 'jcs/post_item_classes', $p->classes, $p->ID);
 				
 				// check if post item is the current page
 				if(is_single($post) && is_singular( $value ) && $post->ID == $p->ID){
 					$current_dynamic_parent = $p->$parent_field;
-					$p->classes = array('current-menu-item');
+					$p->classes[] = 'current-menu-item';
 					$p->split_section = true;
 				}
 				
@@ -485,14 +515,21 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		$tax_max_depth = intval(SubmenuModel::get_meta($tax_parent_id, 'tax-depth'));
 		$tax_term = intval(SubmenuModel::get_meta($tax_parent_id, 'tax-term'));
 
-		$terms = get_terms( $value, array(
+		$term_query = array(
 			'hide_empty' => $hide,
 			'order' => $order,
 			'orderby' => $orderby,
 			// 'exclude' => $exclude,
 			'exclude_tree' => $exclude,
 			'child_of' => $tax_term
-		) );
+		);
+
+		// apply filters
+		$term_query = apply_filters( 'jcs/term_query_args', $term_query ); 
+		$term_query = apply_filters('jcs/term_'.$e->$id_field.'_query_args', $term_query );
+
+		// run term query
+		$terms = get_terms( $value, $term_query );
 
 		$tax_elements = array();
 
@@ -502,6 +539,7 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 			$t->ID = $t->term_id;
 			$t->title = $t->name;
 			$t->url = get_term_link( $t, $value );
+			$t->classes = array();
 			
 			if($t->parent == 0 || $t->parent == $tax_term){
 				$t->$parent_field = $tax_parent_id;
@@ -510,9 +548,13 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 				$t->$parent_field = $dynamic_item_prefix . $t->parent;
 			}
 
+			// add classes
+			$t->classes = apply_filters( 'jcs/item_classes', $t->classes, $t->ID);
+			$t->classes = apply_filters( 'jcs/term_item_classes', $t->classes, $t->ID);
+
 			if((is_category() && is_category( $t->ID )) || (is_tag() && is_tag( $t->slug )) || is_tax( $value, $t->slug ) || ( is_singular() && has_term( $t->term_id, $value ) ) ){
 				$current_dynamic_parent = $t->$parent_field;
-				$t->classes = array('current-menu-item');
+				$t->classes[] = 'current-menu-item';
 				$t->split_section = true;
 			}
 			
@@ -603,7 +645,7 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		foreach($elements as &$p){
 
 			if(strval($p->$id_field) === strval($parent)){
-				$p->classes = array('current-menu-ancestor');
+				$p->classes[] = 'current-menu-ancestor';
 				$p->split_section = true;
 				$this->child_page_walker($elements, strval($p->$parent_field));
 				return;
