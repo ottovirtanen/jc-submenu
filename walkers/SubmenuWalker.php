@@ -27,13 +27,13 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 
 	function start_el( &$output, $item, $depth = 0, $args = array(), $current_object_id = 0 ) {
 		// clone to unlink from $args
-		$item_args = apply_filters( 'jci/menu_item_args', clone($args), $item);
+		$item_args = apply_filters( 'jcs/menu_item_args', clone($args), $item);
 		parent::start_el($output, $item, $depth, $item_args, $current_object_id);
 	}
  
 	function end_el( &$output, $item, $depth = 0, $args = array() ) {
 		// clone to unlink from $args
-		$item_args = apply_filters( 'jci/menu_item_args', clone($args), $item, $current_object_id );
+		$item_args = apply_filters( 'jcs/menu_item_args', clone($args), $item, $current_object_id );
 		parent::end_el($output, $item, $depth, $item_args);
 	}
 

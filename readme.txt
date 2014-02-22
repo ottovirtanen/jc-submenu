@@ -4,7 +4,7 @@ Donate link:
 Tags: submenu, menu, dynamic, custom post type, taxonomy, child pages
 Requires at least: 3.0.1
 Tested up to: 3.8
-Stable tag: 0.6
+Stable tag: 0.6.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,6 +39,10 @@ For further documentation on installing and using JC Submneu features can be fou
 4. JC Submenu, Advanced Submenu Widget Options
 
 == Changelog ==
+
+**0.6.1**
+
+* Renamed filter from jci/menu_item_args to jcs/menu_item_args
 
 **0.6**
 
