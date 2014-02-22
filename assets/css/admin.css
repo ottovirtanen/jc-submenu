@@ -66,3 +66,14 @@ p.jc-accord-heading{
 .jc-accord-heading.jc-submenu-populate-page.active{
 	border-bottom: 1px solid #dfdfdf;
 }
+
+#jc-submenu-loading{
+	height:38px;
+	border: 1px solid #dfdfdf;
+	background: #ededed;
+	color:#737373;
+	line-height: 40px;
+	text-indent: 10px;
+	float:left;
+	width:367px;
+}

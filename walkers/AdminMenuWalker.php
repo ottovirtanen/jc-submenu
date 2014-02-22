@@ -83,7 +83,11 @@ class JC_Submenu_Admin_Walker extends Walker_Nav_Menu {
 				<dt class="menu-item-handle">
 					<span class="item-title"><?php echo esc_html( $title ); ?></span>
 					<span class="item-controls">
-						<span class="item-type"><?php echo esc_html( $item->type_label ); ?></span>
+						<?php if(SubmenuModel::get_meta($item_id, 'autopopulate') == 1): ?>
+							<span class="item-type">JC Submenu [<?php echo SubmenuModel::get_meta($item_id, 'populate-type'); ?>] | <?php echo esc_html( $item->type_label ); ?></span>
+						<?php else: ?>
+							<span class="item-type"><?php echo esc_html( $item->type_label ); ?></span>
+						<?php endif; ?>
 						<span class="item-order hide-if-js">
 							<a href="<?php
 								echo wp_nonce_url(

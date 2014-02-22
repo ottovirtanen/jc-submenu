@@ -26,13 +26,15 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 	}
 
 	function start_el( &$output, $item, $depth = 0, $args = array(), $current_object_id = 0 ) {
-
-		parent::start_el($output, $item, $depth, $args, $current_object_id);
+		// clone to unlink from $args
+		$item_args = apply_filters( 'jci/menu_item_args', clone($args), $item);
+		parent::start_el($output, $item, $depth, $item_args, $current_object_id);
 	}
  
 	function end_el( &$output, $item, $depth = 0, $args = array() ) {
-
-		parent::end_el($output, $item, $depth, $args);
+		// clone to unlink from $args
+		$item_args = apply_filters( 'jci/menu_item_args', clone($args), $item, $current_object_id );
+		parent::end_el($output, $item, $depth, $item_args);
 	}
 
 	function start_lvl( &$output, $depth = 0, $args = array() ) {
@@ -377,8 +379,16 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		foreach($pages as $p){
 			
 			$p->$id_field = $p->ID;
-			$p->title = $p->post_title;
-			$p->url = get_permalink( $p->ID);
+			$p->object = 'page';
+			$p->object_id = $p->ID;
+
+
+			$p->title = apply_filters( 'jcs/item_title', $p->post_title, $p->ID, 'page' );
+			$p->title = apply_filters( 'jcs/page_item_title', $p->title, $p->ID );
+
+			$p->url = apply_filters( 'jcs/item_url', get_permalink( $p->ID), $p->ID, 'page' );
+			$p->url = apply_filters( 'jcs/page_item_url', $p->url, $p->ID );
+
 			$p->classes = array();
 
 			if($p->post_parent == $value){
@@ -388,7 +398,7 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 			}
 
 			// add classes
-			$p->classes = apply_filters( 'jcs/item_classes', $p->classes, $p->ID);
+			$p->classes = apply_filters( 'jcs/item_classes', $p->classes, $p->ID, 'page');
 			$p->classes = apply_filters( 'jcs/page_item_classes', $p->classes, $p->ID);
 
 			// check if this page is the current page
@@ -462,8 +472,15 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 				
 				// set menu item variables
 				$p->$id_field = $p->ID;
-				$p->title = $p->post_title;
-				$p->url = get_permalink( $p->ID);
+				$p->object = 'post';
+				$p->object_id = $p->ID;
+
+				$p->title = apply_filters( 'jcs/item_title', $p->post_title, $p->ID, $value );
+				$p->title = apply_filters( 'jcs/post_item_title', $p->title, $p->ID );
+
+				$p->url = apply_filters( 'jcs/item_url', get_permalink( $p->ID), $p->ID, $value );
+				$p->url = apply_filters( 'jcs/post_item_url', $p->url, $p->ID );
+
 				$p->$parent_field = $e->$id_field;
 				$p->classes = array();
 
@@ -477,7 +494,7 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 				}
 
 				// add classes
-				$p->classes = apply_filters( 'jcs/item_classes', $p->classes, $p->ID);
+				$p->classes = apply_filters( 'jcs/item_classes', $p->classes, $p->ID, $value);
 				$p->classes = apply_filters( 'jcs/post_item_classes', $p->classes, $p->ID);
 				
 				// check if post item is the current page
@@ -537,8 +554,15 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		foreach($terms as $t){
 			$t->$id_field = $dynamic_item_prefix . $t->term_id;
 			$t->ID = $t->term_id;
-			$t->title = $t->name;
-			$t->url = get_term_link( $t, $value );
+			$t->object = 'term';
+			$t->object_id = $t->term_id;
+
+			$t->title = apply_filters( 'jcs/item_title', $t->name, $t->ID, 'term' );
+			$t->title = apply_filters( 'jcs/term_item_title', $t->title, $t->ID );
+
+			$t->url = apply_filters( 'jcs/item_url', get_term_link( $t, $value ), $t->ID , 'term');
+			$t->url = apply_filters( 'jcs/term_item_url', $t->url, $t->ID );
+
 			$t->classes = array();
 			
 			if($t->parent == 0 || $t->parent == $tax_term){
@@ -549,7 +573,7 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 			}
 
 			// add classes
-			$t->classes = apply_filters( 'jcs/item_classes', $t->classes, $t->ID);
+			$t->classes = apply_filters( 'jcs/item_classes', $t->classes, $t->ID, 'term');
 			$t->classes = apply_filters( 'jcs/term_item_classes', $t->classes, $t->ID);
 
 			if((is_category() && is_category( $t->ID )) || (is_tag() && is_tag( $t->slug )) || is_tax( $value, $t->slug ) || ( is_singular() && has_term( $t->term_id, $value ) ) ){

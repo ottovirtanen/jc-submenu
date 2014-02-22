@@ -14,6 +14,7 @@ var JC_Submenu = {
 
 (function($){
 
+
 	/**
 	 * Display Active Menu Population Options
 	 * @since 0.2
@@ -104,11 +105,11 @@ var JC_Submenu = {
 			});
 
 			// hide taxonomy filters if no options
-			if(tax_select.find('option').size() == 1){
+			/*if(tax_select.find('option').size() == 1){
 				tax_select.parent().hide();
 			}else{
 				tax_select.parent().show();
-			}
+			}*/
 
 			tax_select.trigger('change');
 		});
@@ -150,11 +151,11 @@ var JC_Submenu = {
 				}
 			});
 
-			if(term_select.find('option').size() == 1){
+			/*if(term_select.find('option').size() == 1){
 				term_select.parent().hide();
 			}else{
 				term_select.parent().show();
-			}
+			}*/
 
 		});
 
@@ -194,11 +195,11 @@ var JC_Submenu = {
 				}
 			});
 
-			if(term_select.find('option').size() == 1){
+			/*if(term_select.find('option').size() == 1){
 				term_select.parent().hide();
 			}else{
 				term_select.parent().show();
-			}
+			}*/
 
 		});
 
@@ -206,11 +207,11 @@ var JC_Submenu = {
 	});
 
 
-     /**
-     * Document Ready
-     */
-     $(document).ready(function(){
-     	$('.show-post, .show-tax, .show-page').hide();
-     });
+	/**
+	* Document Ready
+	*/
+	$(document).ready(function(){
+		$('.show-post, .show-tax, .show-page').hide();
+	});
 
 })(jQuery);

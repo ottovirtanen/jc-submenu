@@ -11,6 +11,8 @@
 	</label>
 </p>
 
+<input type="hidden" name="jc-submenu-active[<?php echo $item_id; ?>]" value="1" />
+
 <div id="jc-submenu-populate-block-<?php echo $item_id; ?>" class="jc-submenu-populate-block description-wide hidden">
 
 	

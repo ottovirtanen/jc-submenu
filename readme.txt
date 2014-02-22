@@ -4,7 +4,7 @@ Donate link:
 Tags: submenu, menu, dynamic, custom post type, taxonomy, child pages
 Requires at least: 3.0.1
 Tested up to: 3.8
-Stable tag: 0.5.5
+Stable tag: 0.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,6 +39,14 @@ For further documentation on installing and using JC Submneu features can be fou
 4. JC Submenu, Advanced Submenu Widget Options
 
 == Changelog ==
+
+**0.6**
+
+* Add menu item filters jcs/item_title, jcs/item_url, jcs/page_item_title, jcs/page_item_url, jcs/post_item_title, jcs/post_item_url, jcs/term_item_title, jcs/term_item_url
+* Add admin-menu notice to show if item is dynamically populated
+* Add compatability to other plugins who use a custom admin walker
+* Add setting to disable ajax menu edit
+* Add menu item argument filters jci/menu_item_args to allow customisation of output per item
 
 **0.5.5**
 
