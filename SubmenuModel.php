@@ -66,6 +66,9 @@ class SubmenuModel{
 		$type = self::get_post_data($menu_item_id, 'populate-type');
 		$value = self::get_post_data($menu_item_id, 'populate-'.$type);
 
+		$childpop = self::get_post_data($menu_item_id, 'childpop');
+		$childpop = $childpop == 0 ? 0 : 1;
+
 		if($type && $value){
 
 			// validate population type
@@ -168,6 +171,7 @@ class SubmenuModel{
 			self::save_meta($menu_item_id, 'populate-type', $type);
 			self::save_meta($menu_item_id, 'populate-value', $value);
 			self::save_meta($menu_item_id, 'autopopulate', 1);
+			self::save_meta($menu_item_id, 'childpop', $childpop);
 		}
 
 	}
@@ -259,7 +263,8 @@ class SubmenuModel{
 			'tax-orderby',
 			'tax-empty',
 			'post-tax',
-			'post-term'
+			'post-term',
+			'childpop'
 		);
 		
 		foreach($keys as $meta_key){

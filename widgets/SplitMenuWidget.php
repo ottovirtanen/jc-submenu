@@ -42,6 +42,7 @@ class JC_Split_Menu_Widget extends WP_Widget {
 			'start' => $instance['menu_start'],
 			'depth' => $instance['menu_depth'],
 			'show_parent' => $instance['show_parent'],
+			'trigger_depth' => $instance['trigger_depth']
 		));
  
 		echo $after_widget;
@@ -58,8 +59,9 @@ class JC_Split_Menu_Widget extends WP_Widget {
 		$menu = isset($instance['menu']) ? $instance['menu'] : '';
 		$menu_hierarchy = isset($instance['menu_hierarchy']) ? $instance['menu_hierarchy'] : 1;
 		$show_parent = isset($instance['show_parent']) ? $instance['show_parent'] : 1;
-		$menu_start = isset($instance['menu_start']) ? $instance['menu_start'] : 0;
+		$menu_start = isset($instance['menu_start']) ? $instance['menu_start'] : 1;
 		$menu_depth = isset($instance['menu_depth']) ? $instance['menu_depth'] : 5;
+		$trigger_depth = isset($instance['trigger_depth']) ? $instance['trigger_depth'] : 0;
 		$menus = get_terms('nav_menu');
  
 		?>
@@ -93,7 +95,7 @@ class JC_Split_Menu_Widget extends WP_Widget {
 			<select class="widefat" id="<?php echo $this->get_field_id( 'menu_start' ); ?>" name="<?php echo $this->get_field_name( 'menu_start' ); ?>" >
 
 				<?php 
-				for($x=0; $x <= $max_level; $x++){
+				for($x=1; $x <= $max_level; $x++){
 					$selected = '';
 					if($x == $menu_start){
 						$selected = ' selected="selected"';
@@ -112,6 +114,24 @@ class JC_Split_Menu_Widget extends WP_Widget {
 				for($x=1; $x <= $max_level; $x++){
 					$selected = '';
 					if($x == $menu_depth){
+						$selected = ' selected="selected"';
+					}
+					echo '<option value="'.$x.'"'.$selected.'>'.$x.'</option>';
+				}
+				?>
+			</select>
+		</p>
+
+		<?php $max_level = 5; ?>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'trigger_depth' ); ?>"><?php _e( 'Trigger Depth:' ); ?></label> 
+			<select class="widefat" id="<?php echo $this->get_field_id( 'trigger_depth' ); ?>" name="<?php echo $this->get_field_name( 'trigger_depth' ); ?>" >
+
+				<?php 
+				for($x=0; $x <= $max_level; $x++){
+					$selected = '';
+					if($x == $trigger_depth){
 						$selected = ' selected="selected"';
 					}
 					echo '<option value="'.$x.'"'.$selected.'>'.$x.'</option>';
@@ -147,6 +167,7 @@ class JC_Split_Menu_Widget extends WP_Widget {
 		$instance['menu_depth'] = intval($new_instance['menu_depth']);
 		$instance['menu_hierarchy'] = intval( $new_instance['menu_hierarchy'] );
 		$instance['show_parent'] = intval( $new_instance['show_parent'] );
+		$instance['trigger_depth'] = intval( $new_instance['trigger_depth'] );
  
 		return $instance;
 	}

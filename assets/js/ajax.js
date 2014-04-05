@@ -75,8 +75,10 @@
 						options_handle.live('change', function(){
 						    if($(this).attr('checked') == 'checked'){
 						         $( '#jc-submenu-populate-block-'+id).show();
+						         $('.jc-submenu-active').show();
 						    }else{
 						         $( '#jc-submenu-populate-block-'+id).hide();
+						         $('.jc-submenu-active').hide();
 						    }
 						});
 

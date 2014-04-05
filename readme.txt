@@ -4,7 +4,7 @@ Donate link:
 Tags: submenu, menu, dynamic, custom post type, taxonomy, child pages
 Requires at least: 3.0.1
 Tested up to: 3.8
-Stable tag: 0.6.1
+Stable tag: 0.6.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,6 +30,22 @@ For further documentation on installing and using JC Submneu features can be fou
 
 == Frequently asked questions ==
 
+= How do i use the split menu functionality =
+
+The documentation for using the split menu functionality (widget, shortcode, action) can be found [here](http://jamescollings.co.uk/jc-submenu/resources/output-split-menu-section/)
+
+= How do i output a section of menu =
+
+The documentation for displaying a section of menu (widget, shortcode, action) can be found [here](http://jamescollings.co.uk/jc-submenu/resources/how-to-output-a-section-of-a-wordpress-menu/) 
+
+= How do i automatically populate menu items =
+
+The documentation for automatically populating menu items can be found [here](http://jamescollings.co.uk/jc-submenu/resources/how-to-automatically-populate-wordpress-submenus/)
+
+= What Actions and filters are avaliable in this plugin =
+
+A list of all actions and filters can be found [here](http://jamescollings.co.uk/jc-submenu/sections/actions-filters/)
+
 
 == Screenshots ==
 
@@ -39,6 +55,13 @@ For further documentation on installing and using JC Submneu features can be fou
 4. JC Submenu, Advanced Submenu Widget Options
 
 == Changelog ==
+
+**0.6.2**
+
+* Fixed clone() warning
+* Added trigger_depth to split menu
+* Fixed Menu Ordering
+* Updated FAQ Section
 
 **0.6.1**
 

@@ -10,6 +10,13 @@
 		 <strong>JC Submenu</strong> - Automatically populate submenu
 	</label>
 </p>
+<?php /*
+<p class="jc-submenu-childpop description description-wide hidden jc-submenu-active">
+	<label for="edit-jc-submenu-childpop-<?php echo $item_id; ?>">
+		<input type="checkbox" id="edit-jc-submenu-childpop-<?php echo $item_id; ?>" value="1" class="jc-submenu-childpop" name="jc-submenu-childpop[<?php echo $item_id; ?>]" <?php if(intval(SubmenuModel::get_meta($item_id, 'childpop')) != 0): ?>checked="checked"<?php endif; ?>>
+		 Replace Current item with Populated Items
+	</label>
+</p> */ ?>
 
 <input type="hidden" name="jc-submenu-active[<?php echo $item_id; ?>]" value="1" />
 

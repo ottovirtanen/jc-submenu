@@ -3,7 +3,7 @@
 	Plugin Name: JC Submenu
 	Plugin URI: http://jamescollings.co.uk/blog/jc-submenu-dynamic-wordpress-menu-plugin/
 	Description: Wordpress Submenu Plugin, automatically populate your navigation menus with custom post_types, taxonomies, or child pages. An easy to use plugin created to be a lightweight menu extension.
-	Version: 0.6.1
+	Version: 0.6.2
 	Author: James Collings
 	Author URI: http://www.jamescollings.co.uk
  */
@@ -14,12 +14,12 @@
  * Core plugin file, load all required classes
  * 
  * @author James Collings <james@jclabs.co.uk>
- * @version 0.6.1
+ * @version 0.6.2
  */
 class JCSubmenu{
 
-	var $version = '0.6.1';
-	var $version_check = 61;
+	var $version = '0.6.2';
+	var $version_check = 62;
 	var $plugin_dir = false;
 	var $plugin_url = false;
 	var $prefix = 'jc-submenu';
@@ -94,7 +94,8 @@ class JCSubmenu{
 			'start' => 0,
 			'depth' => 5,
 			'show_parent' => 0,
-			'menu' => false
+			'menu' => false,
+			'trigger_depth' => 0
 		), $atts ));
 
 		if(!$menu)
@@ -107,6 +108,7 @@ class JCSubmenu{
 			'start' => $start,
 			'depth' => $depth,
 			'show_parent' => $show_parent,
+			'trigger_depth' => $trigger_depth
 		));
 
 		$output = ob_get_contents();
@@ -204,9 +206,10 @@ class JCSubmenu{
 	function output_split_menu($menu, $args = array()){
 
 		$hierarchical = isset($args['hierarchy']) ? $args['hierarchy'] : 1;
-		$menu_start = isset($args['start']) ? $args['start'] : 0;
+		$menu_start = isset($args['start']) ? $args['start'] : 1;
 		$menu_depth = isset($args['depth']) ? $args['depth'] : 5;
 		$show_parent = isset($args['show_parent']) ? $args['show_parent'] : 0;
+		$trigger_depth = isset($args['trigger_depth']) ? $args['trigger_depth'] : 0;
 
 		$options = array(
 			'menu' => $menu, 'walker' => new JC_Submenu_Nav_Walker(array(
@@ -214,6 +217,7 @@ class JCSubmenu{
 			'menu_start' => $menu_start,
 			'menu_depth' => $menu_depth,
 			'show_parent' => $show_parent,
+			'trigger_depth' => $trigger_depth,
 			'split_menu' => true
 			))
 		);
