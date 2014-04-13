@@ -189,14 +189,13 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 				
 				$new_elems = array();
 				$old_elems = $elements;
+				$test_elms = $elements;
 				$section_parents = array();
 				$parent_elem = false;
 				$parent_count = 0;
 				$keep_element_ids = array();
 				$keep_element_parents = array();
 				$selected_depth = 0;
-
-				// print_r($this->selected_section_ids);
 
 				// get relevent parent id
 				if($this->menu_start > 0){
@@ -210,7 +209,6 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 							$keep_element_ids[] = $elm->$id_field;
 							$keep_element_parents[] = $elm->$parent_field;
 							$selected_depth = $elm->menu_depth;
-							// echo "{".$elm->$id_field."}";
 						}
 						
 						if(in_array($elm->$id_field, $this->selected_section_ids)){
@@ -238,7 +236,6 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 							if(in_array($elm->$parent_field, $keep_element_ids) && !in_array($elm->$id_field, $keep_element_ids) && 
 								($this->split_trigger_depth == 0 || $elm->menu_depth <= $selected_depth + $this->split_trigger_depth)){
 								$keep_element_ids[] = $elm->$id_field;
-								// echo "{".$elm->title."}";
 								$break = false;
 							}
 						}
@@ -300,19 +297,20 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 				 * Added: 6/3/14
 				 * Remove elements which are not in $keep_element_ids
 				 */
-				foreach($new_elems as $k =>$elm){
+				foreach($test_elms as $k =>$elm){
 					if(!in_array($elm->$id_field, $keep_element_ids)){
-						unset($new_elems[$k]);
+						unset($test_elms[$k]);
+					}elseif($elm->$parent_field == 0 && $elm->split_section != 1 && $elm->current != 1 && $elm->current_item_parent != 1 && $elm->current_item_ancestor != 1){
+						unset($test_elms[$k]);
 					}
 				}
+				$new_elems = $test_elms;
 			}
 
 			// process elements to display
 			foreach($new_elems as $k => $elm){
 
 				// add data to elements
-				// $new_elems[$k]->title .= "({$elm->$id_field})"; // '() '. implode(',', $elm->classes);
-
 				if($elm->menu_depth > $this->menu_start){
 					
 					if($elm->menu_depth >= ($this->menu_start + $this->menu_depth)){
