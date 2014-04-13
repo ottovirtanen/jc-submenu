@@ -161,150 +161,14 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 
 			// process section of menu
 			if($this->section_menu == true){
-				$new_elems = array();
-				$old_elems = $elements;
-
-				foreach($old_elems as $item){
-					if(($this->menu_start_item == $item->db_id && $this->show_parent == 1) || $item->menu_item_parent == $this->menu_start_item || in_array($item->menu_item_parent, $this->_section_ids)){
-
-						// set depth start from first item
-						if(empty($new_elems)){
-							$this->menu_start = $item->menu_depth;
-
-							if($this->show_parent)
-								$this->menu_depth++;
-						}
-
-						$new_elems[] = $item;	
-
-						if(!in_array($item->db_id, $this->_section_ids)){
-							$this->_section_ids[] = $item->db_id;	
-						}
-					}
-				}
+				
+				$new_elems = $this->_process_menu_section($elements);
 			}
 
 			// process split menu
 			if($this->split_menu == true){
-				
-				$new_elems = array();
-				$old_elems = $elements;
-				$test_elms = $elements;
-				$section_parents = array();
-				$parent_elem = false;
-				$parent_count = 0;
-				$keep_element_ids = array();
-				$keep_element_parents = array();
-				$selected_depth = 0;
 
-				// get relevent parent id
-				if($this->menu_start > 0){
-					foreach($old_elems as $elm){
-
-						/**
-						 * Added: 6/3/14
-						 * Get current menu item
-						 */
-						if(in_array('current-menu-item', $elm->classes) || $elm->current == 1){
-							$keep_element_ids[] = $elm->$id_field;
-							$keep_element_parents[] = $elm->$parent_field;
-							$selected_depth = $elm->menu_depth;
-						}
-						
-						if(in_array($elm->$id_field, $this->selected_section_ids)){
-
-							/**
-							 * Added: 6/3/14
-							 * Comment out if statement
-							 */
-							// if($elm->menu_depth == $this->menu_start - 1){
-								$new_elems[] = $elm;
-								$section_parents[] = $elm->$id_field;
-							// }
-						}
-					}
-
-					/**
-					 * Added: 6/3/14
-					 * Build a list of ids
-					 * Display Menu items which are only one item deeper than current selection
-					 */
-					$break = false;
-					while(!$break){
-						$break = true;
-						foreach($old_elems as $elm){
-							if(in_array($elm->$parent_field, $keep_element_ids) && !in_array($elm->$id_field, $keep_element_ids) && 
-								($this->split_trigger_depth == 0 || $elm->menu_depth <= $selected_depth + $this->split_trigger_depth)){
-								$keep_element_ids[] = $elm->$id_field;
-								$break = false;
-							}
-						}
-					}
-
-					/**
-					 * Added: 6/3/14
-					 * Build list of parent items to keep
-					 */
-					
-					if(isset($keep_element_ids[0])){
-
-						$temp = array($keep_element_ids[0]); // first element is the active menu item
-						$break = false;
-						while(!$break){
-							$break = true;
-							foreach($old_elems as $elm){
-								if(in_array($elm->$id_field, $keep_element_parents) && !in_array($elm->$parent_field, $keep_element_parents)){
-									$keep_element_parents[] = $elm->$parent_field;
-									$break = false;
-								}
-							}
-						}
-					}
-
-					/**
-					 * Added: 6/3/14
-					 * Add elements matching parent id
-					 */
-					foreach($old_elems as $elm){
-						if(in_array($elm->$parent_field, $keep_element_parents)){
-							$keep_element_ids[] = $elm->$id_field;
-						}
-					}
-
-				}else{
-					$section_parents = array(0);
-				}
-
-				if($this->show_parent && $this->menu_start > 0){
-					$this->menu_start--;
-					$this->menu_depth++;
-				}
-
-				while($parent_count < count($section_parents)){
-
-					$parent_count = count($section_parents);
-
-					foreach($old_elems as $elm){
-
-						if(in_array($elm->$parent_field, $section_parents) && !in_array($elm->$id_field, $section_parents)){
-							$section_parents[] = $elm->$id_field;
-							$new_elems[] = $elm;
-						}
-					}	
-				}
-
-				/**
-				 * Added: 6/3/14
-				 * Remove elements which are not in $keep_element_ids
-				 */
-				foreach($test_elms as $k =>$elm){
-					if(!in_array($elm->$id_field, $keep_element_ids)){
-						unset($test_elms[$k]);
-					}elseif($elm->$parent_field == 0 && $elm->split_section != 1 && $elm->current != 1 && $elm->current_item_parent != 1 && $elm->current_item_ancestor != 1){
-						unset($test_elms[$k]);
-					}
-				}
-				$new_elems = $test_elms;
+				$new_elems = $this->_process_split_menu($elements);
 			}
 
 			// process elements to display
@@ -388,6 +252,157 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		 }
 
 		 return $output;
+	}
+
+	public function _process_menu_section($elements = array()){
+		
+		$new_elems = array();
+
+		foreach($elements as $item){
+			if(($this->menu_start_item == $item->db_id && $this->show_parent == 1) || $item->menu_item_parent == $this->menu_start_item || in_array($item->menu_item_parent, $this->_section_ids)){
+
+				// set depth start from first item
+				if(empty($new_elems)){
+					$this->menu_start = $item->menu_depth;
+
+					if($this->show_parent)
+						$this->menu_depth++;
+				}
+
+				$new_elems[] = $item;	
+
+				if(!in_array($item->db_id, $this->_section_ids)){
+					$this->_section_ids[] = $item->db_id;	
+				}
+			}
+		}
+
+		return $new_elems;
+	}
+
+	public function _process_split_menu($elements = array()){
+
+		$new_elems = array();
+		$old_elems = $elements;
+		$test_elms = $elements;
+		$section_parents = array();
+		$parent_elem = false;
+		$parent_count = 0;
+		$keep_element_ids = array();
+		$keep_element_parents = array();
+		$selected_depth = 0;
+		$id_field = $this->db_fields['id'];
+		$parent_field = $this->db_fields['parent'];
+
+		// get relevent parent id
+		if($this->menu_start > 0){
+			foreach($old_elems as $elm){
+
+				/**
+				 * Added: 6/3/14
+				 * Get current menu item
+				 */
+				if(in_array('current-menu-item', $elm->classes) || $elm->current == 1){
+					$keep_element_ids[] = $elm->$id_field;
+					$keep_element_parents[] = $elm->$parent_field;
+					$selected_depth = $elm->menu_depth;
+				}
+				
+				if(in_array($elm->$id_field, $this->selected_section_ids)){
+
+					/**
+					 * Added: 6/3/14
+					 * Comment out if statement
+					 */
+					// if($elm->menu_depth == $this->menu_start - 1){
+						$new_elems[] = $elm;
+						$section_parents[] = $elm->$id_field;
+					// }
+				}
+			}
+
+			/**
+			 * Added: 6/3/14
+			 * Build a list of ids
+			 * Display Menu items which are only one item deeper than current selection
+			 */
+			$break = false;
+			while(!$break){
+				$break = true;
+				foreach($old_elems as $elm){
+					if(in_array($elm->$parent_field, $keep_element_ids) && !in_array($elm->$id_field, $keep_element_ids) && 
+						($this->split_trigger_depth == 0 || $elm->menu_depth <= $selected_depth + $this->split_trigger_depth)){
+						$keep_element_ids[] = $elm->$id_field;
+						$break = false;
+					}
+				}
+			}
+
+			/**
+			 * Added: 6/3/14
+			 * Build list of parent items to keep
+			 */
+			
+			if(isset($keep_element_ids[0])){
+
+				$temp = array($keep_element_ids[0]); // first element is the active menu item
+				$break = false;
+				while(!$break){
+					$break = true;
+					foreach($old_elems as $elm){
+						if(in_array($elm->$id_field, $keep_element_parents) && !in_array($elm->$parent_field, $keep_element_parents)){
+							$keep_element_parents[] = $elm->$parent_field;
+							$break = false;
+						}
+					}
+				}
+			}
+
+			/**
+			 * Added: 6/3/14
+			 * Add elements matching parent id
+			 */
+			foreach($old_elems as $elm){
+				if(in_array($elm->$parent_field, $keep_element_parents)){
+					$keep_element_ids[] = $elm->$id_field;
+				}
+			}
+
+		}else{
+			$section_parents = array(0);
+		}
+
+		if($this->show_parent && $this->menu_start > 0){
+			$this->menu_start--;
+			$this->menu_depth++;
+		}
+
+		while($parent_count < count($section_parents)){
+
+			$parent_count = count($section_parents);
+
+			foreach($old_elems as $elm){
+
+				if(in_array($elm->$parent_field, $section_parents) && !in_array($elm->$id_field, $section_parents)){
+					$section_parents[] = $elm->$id_field;
+					$new_elems[] = $elm;
+				}
+			}	
+		}
+
+		/**
+		 * Added: 6/3/14
+		 * Remove elements which are not in $keep_element_ids
+		 */
+		foreach($test_elms as $k =>$elm){
+			if(!in_array($elm->$id_field, $keep_element_ids)){
+				unset($test_elms[$k]);
+			}elseif($elm->$parent_field == 0 && $elm->split_section != 1 && $elm->current != 1 && $elm->current_item_parent != 1 && $elm->current_item_ancestor != 1){
+				unset($test_elms[$k]);
+			}
+		}
+
+		return $test_elms;
 	}
 
 	public function set_elements_depth($elements, $parent = 0, $menu = false){
