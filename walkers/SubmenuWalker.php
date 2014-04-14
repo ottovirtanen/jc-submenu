@@ -312,7 +312,7 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 				 * Added: 6/3/14
 				 * Get current menu item
 				 */
-				if(in_array('current-menu-item', $elm->classes) || ( isset($elm->current) && $elm->current == 1)){
+				if((isset($elm->classes) && in_array('current-menu-item', $elm->classes)) || ( isset($elm->current) && $elm->current == 1)){
 					$keep_element_ids[] = $elm->$id_field;
 					$keep_element_parents[] = $elm->$parent_field;
 					$selected_depth = $elm->menu_depth;
@@ -407,7 +407,7 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		foreach($test_elms as $k =>$elm){
 			if(!in_array($elm->$id_field, $keep_element_ids)){
 				unset($test_elms[$k]);
-			}elseif($elm->$parent_field == 0 && $elm->split_section != 1 && $elm->current != 1 && $elm->current_item_parent != 1 && $elm->current_item_ancestor != 1){
+			}elseif($elm->$parent_field == 0 && (!isset($elm->split_section) || $elm->split_section != 1) && (!isset($elm->current) || $elm->current != 1) && (!isset($elm->current_item_parent) || $elm->current_item_parent != 1) && (!isset($elm->current_item_ancestor) || $elm->current_item_ancestor != 1)){
 				unset($test_elms[$k]);
 			}
 		}
