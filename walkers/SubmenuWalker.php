@@ -105,6 +105,72 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		 * marked for auto population using this plugin
 		 */
 		
+		$elements = $this->attach_elements($elements);
+
+		// escape if no elements are left
+		if(empty($elements)){
+			return false;
+		}
+
+		/*
+		 * need to display in hierarchical order
+		 * separate elements into two buckets: top level and children elements
+		 * children_elements is two dimensional array, eg.
+		 * children_elements[10][] contains all sub-elements whose parent is 10.
+		 */
+		$top_level_elements = array();
+		$children_elements  = array();
+
+		foreach ( $elements as $e) {
+
+			if ( 0 == $e->$parent_field ){
+				$top_level_elements[] = $e;
+			}else{
+				$children_elements[ $e->$parent_field ][] = $e;
+			}
+		}
+
+		/*
+		 * when none of the elements is top level
+		 * assume the first one must be root of the sub elements
+		 */
+		if ( empty($top_level_elements) ) {
+
+			$first = array_slice( $elements, 0, 1 );
+			$root = $first[0];
+
+			$top_level_elements = array();
+			$children_elements  = array();
+			foreach ( $elements as $e) {
+				if ( $root->$parent_field == $e->$parent_field )
+					$top_level_elements[] = $e;
+				else
+					$children_elements[ $e->$parent_field ][] = $e;
+			}
+		}
+
+		foreach ( $top_level_elements as $e )
+			$this->display_element( $e, $children_elements, $max_depth, 0, $args, $output );
+
+		/*
+		 * if we are displaying all levels, and remaining children_elements is not empty,
+		 * then we got orphans, which should be displayed regardless
+		 */
+		if ( ( $max_depth == 0 ) && count( $children_elements ) > 0 ) {
+			$empty_array = array();
+			foreach ( $children_elements as $orphans )
+				foreach( $orphans as $op )
+					$this->display_element( $op, $empty_array, 1, 0, $args, $output );
+		 }
+
+		 return $output;
+	}
+
+	public function attach_elements($elements){
+
+		$id_field = $this->db_fields['id'];
+		$parent_field = $this->db_fields['parent'];
+
 		// copy to new array to keep menu item order
 		$new_elements = array();
 		foreach($elements as $k => $e){
@@ -195,63 +261,7 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 			$elements = $new_elems;
 		}
 
-		// escape if no elements are left
-		if(empty($elements)){
-			return false;
-		}
-
-		/*
-		 * need to display in hierarchical order
-		 * separate elements into two buckets: top level and children elements
-		 * children_elements is two dimensional array, eg.
-		 * children_elements[10][] contains all sub-elements whose parent is 10.
-		 */
-		$top_level_elements = array();
-		$children_elements  = array();
-
-		foreach ( $elements as $e) {
-
-			if ( 0 == $e->$parent_field ){
-				$top_level_elements[] = $e;
-			}else{
-				$children_elements[ $e->$parent_field ][] = $e;
-			}
-		}
-
-		/*
-		 * when none of the elements is top level
-		 * assume the first one must be root of the sub elements
-		 */
-		if ( empty($top_level_elements) ) {
-
-			$first = array_slice( $elements, 0, 1 );
-			$root = $first[0];
-
-			$top_level_elements = array();
-			$children_elements  = array();
-			foreach ( $elements as $e) {
-				if ( $root->$parent_field == $e->$parent_field )
-					$top_level_elements[] = $e;
-				else
-					$children_elements[ $e->$parent_field ][] = $e;
-			}
-		}
-
-		foreach ( $top_level_elements as $e )
-			$this->display_element( $e, $children_elements, $max_depth, 0, $args, $output );
-
-		/*
-		 * if we are displaying all levels, and remaining children_elements is not empty,
-		 * then we got orphans, which should be displayed regardless
-		 */
-		if ( ( $max_depth == 0 ) && count( $children_elements ) > 0 ) {
-			$empty_array = array();
-			foreach ( $children_elements as $orphans )
-				foreach( $orphans as $op )
-					$this->display_element( $op, $empty_array, 1, 0, $args, $output );
-		 }
-
-		 return $output;
+		return $elements;
 	}
 
 	public function _process_menu_section($elements = array()){
@@ -475,6 +485,7 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		$current_item_found = false;
 		$parent_item_found = false;
 		$item_id = 0;
+		$prev_item_id = 0;
 		$break = false;
 
 		while(!$break){
@@ -484,14 +495,16 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 			foreach($elements as &$element){
 
 				if(!$current_item_found && isset($element->current) && $element->current == 1){
+
 					$current_item_found = true;
 					$item_id = $element->$parent_field;
 					$break = false;
 					$this->selected_section_ids[] = $element->$id_field;
+					$element->split_section = 1;
 				}
 
-				if($item_id == $element->$id_field){
-					
+				if($current_item_found && $item_id == $element->$id_field){
+
 					$item_id = $element->$parent_field;
 					$element->split_section = 1;
 					$break = false;
@@ -506,11 +519,17 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 					$element->current_item_ancestor = 1;
 					$this->selected_section_ids[] = $element->$id_field;
 				}
+
+				if($current_item_found && $item_id == 0){
+					break;
+				}
 			}
 
-			if($item_id == 0){
+			if($item_id == 0 || $item_id == $prev_item_id){
 				$break = true;
 			}
+
+			$prev_item_id = $item_id;	
 		}
 
 		return $elements;
