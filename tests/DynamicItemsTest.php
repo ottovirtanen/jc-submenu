@@ -61,7 +61,7 @@ class DynamicItemsTest extends WP_UnitTestCase{
         $this->assertEquals($elements[7]->depth, 3);
     }
 
-    function testElementState(){
+    function testElementState01(){
 
         $walker = new JC_Submenu_Nav_Walker();
 
@@ -108,10 +108,53 @@ class DynamicItemsTest extends WP_UnitTestCase{
             ),
         );
 
+        $result = array(
+            (object)array(
+                'menu_item_parent' => 0,
+                'db_id' => 1,
+                'current' => 1,
+                'split_section' => 1
+            ),
+            // lvl 1
+            (object)array(
+                'menu_item_parent' => 1,
+                'db_id' => 2,
+            ),
+            (object)array(
+                'menu_item_parent' => 1,
+                'db_id' => 3,
+            ),
+            (object)array(
+                'menu_item_parent' => 1,
+                'db_id' => 4,
+            ),
+            // lvl 2
+            (object)array(
+                'menu_item_parent' => 2,
+                'db_id' => 5,
+            ),
+            (object)array(
+                'menu_item_parent' => 2,
+                'db_id' => 6,
+            ),
+            // lvl 3
+            (object)array(
+                'menu_item_parent' => 5,
+                'db_id' => 7,
+            ),
+            (object)array(
+                'menu_item_parent' => 6,
+                'db_id' => 8,
+            ),
+        );
+
         $output = $walker->_set_elements_state($elements);
-        $elements[0]->current = 1;
-        $elements[0]->split_section = 1;
-        $this->assertEquals($elements, $output);
+        $this->assertEquals($result, $output);
+    }
+
+    function testElementState02(){
+
+        $walker = new JC_Submenu_Nav_Walker();
 
         /**
          * Second level parent
@@ -154,14 +197,57 @@ class DynamicItemsTest extends WP_UnitTestCase{
                 'db_id' => 8,
             ),
         );
+        $result = array(
+            (object)array(
+                'menu_item_parent' => 0,
+                'db_id' => 1,
+                'classes' => array('current-menu-parent', 'current-menu-ancestor'),
+                'current_item_ancestor' => 1,
+                'current_item_parent' => 1,
+                'split_section' => 1
+            ),
+            // lvl 1
+            (object)array(
+                'menu_item_parent' => 1,
+                'db_id' => 2,
+                'current' => 1,
+                'split_section' => 1
+            ),
+            (object)array(
+                'menu_item_parent' => 1,
+                'db_id' => 3,
+            ),
+            (object)array(
+                'menu_item_parent' => 1,
+                'db_id' => 4,
+            ),
+            // lvl 2
+            (object)array(
+                'menu_item_parent' => 2,
+                'db_id' => 5,
+            ),
+            (object)array(
+                'menu_item_parent' => 2,
+                'db_id' => 6,
+            ),
+            // lvl 3
+            (object)array(
+                'menu_item_parent' => 5,
+                'db_id' => 7,
+            ),
+            (object)array(
+                'menu_item_parent' => 6,
+                'db_id' => 8,
+            ),
+        );
 
         $output = $walker->_set_elements_state($elements);
-        $elements[1]->current = 1;
-        $elements[1]->split_section = 1;
-        $elements[0]->classes = array('current-menu-parent', 'current-menu-ancestor');
-        $elements[0]->current_item_parent = 1;
-        $elements[0]->current_item_ancestor = 1;
-        $this->assertEquals($elements, $output);
+        $this->assertEquals($result, $output);
+    }
+
+    function testElementState03(){
+
+        $walker = new JC_Submenu_Nav_Walker();
 
         /**
          * Third level parent
@@ -205,17 +291,61 @@ class DynamicItemsTest extends WP_UnitTestCase{
                 'db_id' => 8,
             ),
         );
+        $result = array(
+            (object)array(
+                'menu_item_parent' => 0,
+                'db_id' => 1,
+                'classes' => array('current-menu-ancestor'),
+                'split_section' => 1,
+                'current_item_ancestor' => 1,
+            ),
+            // lvl 1
+            (object)array(
+                'menu_item_parent' => 1,
+                'db_id' => 2,
+                'classes' => array('current-menu-parent', 'current-menu-ancestor'),
+                'current_item_parent' => 1,
+                'current_item_ancestor' => 1,
+                'split_section' => 1
+            ),
+            (object)array(
+                'menu_item_parent' => 1,
+                'db_id' => 3,
+            ),
+            (object)array(
+                'menu_item_parent' => 1,
+                'db_id' => 4,
+            ),
+            // lvl 2
+            (object)array(
+                'menu_item_parent' => 2,
+                'db_id' => 5,
+                'current' => 1,
+                'split_section' => 1
+            ),
+            (object)array(
+                'menu_item_parent' => 2,
+                'db_id' => 6,
+            ),
+            // lvl 3
+            (object)array(
+                'menu_item_parent' => 5,
+                'db_id' => 7,
+            ),
+            (object)array(
+                'menu_item_parent' => 6,
+                'db_id' => 8,
+            ),
+        );
 
         $output = $walker->_set_elements_state($elements);
-        $elements[4]->current = 1;
-        $elements[4]->split_section = 1;
-        $elements[0]->classes = array('current-menu-ancestor');
-        $elements[0]->current_item_ancestor = 1;
-        $elements[1]->classes = array('current-menu-parent', 'current-menu-ancestor');
-        $elements[1]->current_item_parent = 1;
-        $elements[1]->current_item_ancestor = 1;
-        $this->assertEquals($elements, $output);
+        $this->assertEquals($result, $output);
 
+    }
+
+    function testElementState04(){
+
+        $walker = new JC_Submenu_Nav_Walker();
         /**
          * Fourth Level Parent
          */
@@ -264,20 +394,116 @@ class DynamicItemsTest extends WP_UnitTestCase{
                 'db_id' => 9,
             ),
         );
+        $result = array(
+            (object)array(
+                'menu_item_parent' => 0,
+                'db_id' => 1,
+                'classes' => array('current-menu-ancestor'),
+                'current_item_ancestor' => 1,
+                'split_section' => 1
+            ),
+            // lvl 1
+            (object)array(
+                'menu_item_parent' => 1,
+                'db_id' => 2,
+                'classes' => array('current-menu-ancestor'),
+                'current_item_ancestor' => 1,
+                'split_section' => 1
+            ),
+            (object)array(
+                'menu_item_parent' => 1,
+                'db_id' => 3,
+            ),
+            (object)array(
+                'menu_item_parent' => 1,
+                'db_id' => 4,
+            ),
+            // lvl 2
+            (object)array(
+                'menu_item_parent' => 2,
+                'db_id' => 5,
+                'classes' => array('current-menu-parent', 'current-menu-ancestor'),
+                'current_item_ancestor' => 1,
+                'current_item_parent' => 1,
+                'split_section' => 1
+            ),
+            (object)array(
+                'menu_item_parent' => 2,
+                'db_id' => 6,
+            ),
+            // lvl 3
+            (object)array(
+                'menu_item_parent' => 5,
+                'db_id' => 7,
+                'current' => 1,
+                'split_section' => 1
+            ),
+            (object)array(
+                'menu_item_parent' => 6,
+                'db_id' => 8,
+            ),
+            // no parent
+            (object)array(
+                'menu_item_parent' => 9,
+                'db_id' => 9,
+            ),
+        );
 
         $output = $walker->_set_elements_state($elements);
-        
-        $elements[0]->classes = array('current-menu-ancestor');
-        $elements[0]->current_item_ancestor = 1;
-        $elements[1]->classes = array('current-menu-ancestor');
-        $elements[1]->current_item_ancestor = 1;
-        $elements[4]->classes = array('current-menu-parent', 'current-menu-ancestor');
-        $elements[4]->current_item_parent = 1;
-        $elements[4]->current_item_ancestor = 1;
-        $elements[6]->current = 1;
-        $elements[6]->split_section = 1;
+        $this->assertEquals($result, $output);
+    }
 
-        $this->assertEquals($elements, $output);
+    /**
+     * Test Single Menu Item who is current
+     */
+    function testElementState05(){
+
+        $walker = new JC_Submenu_Nav_Walker();
+        /**
+         * Fourth Level Parent
+         */
+        $elements = array(
+            (object)array(
+                'menu_item_parent' => 0,
+                'db_id' => 1,
+                'current' => 1
+            )
+        );
+        $result = array(
+            (object)array(
+                'menu_item_parent' => 0,
+                'db_id' => 1,
+                'current' => 1,
+                'split_section' => 1
+            )
+        );
+
+        $output = $walker->_set_elements_state($elements);
+        $this->assertEquals($result, $output);
+    }
+
+    /**
+     * Test Single Menu Item not current
+     */
+    function testElementState06(){
+
+        $walker = new JC_Submenu_Nav_Walker();
+
+        $elements = array(
+            (object)array(
+                'menu_item_parent' => 0,
+                'db_id' => 1,
+            )
+        );
+        $result = array(
+            (object)array(
+                'menu_item_parent' => 0,
+                'db_id' => 1,
+            )
+        );
+
+        $output = $walker->_set_elements_state($elements);
+        $this->assertEquals($result, $output);
     }
 }
 

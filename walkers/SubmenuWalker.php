@@ -315,7 +315,7 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 				if((isset($elm->classes) && in_array('current-menu-item', $elm->classes)) || ( isset($elm->current) && $elm->current == 1)){
 					$keep_element_ids[] = $elm->$id_field;
 					$keep_element_parents[] = $elm->$parent_field;
-					$selected_depth = $elm->menu_depth;
+					$selected_depth = isset($elm->menu_depth) ? $elm->menu_depth: 0;
 				}
 				
 				if(in_array($elm->$id_field, $this->selected_section_ids)){
