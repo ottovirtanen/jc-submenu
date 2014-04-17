@@ -210,6 +210,8 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 						$new_elements = array_merge($new_elements, $this->_populate_page_items($e, $value, $parent));
 					}elseif($type == 'tax'){
 						$new_elements = array_merge($new_elements, $this->_populate_tax_items($e, $value, $parent));
+					}elseif($type == 'archive'){
+						$new_elements = array_merge($new_elements, $this->_populate_archive_items($e, $value, $parent));
 					}
 				}
 			}
@@ -817,5 +819,65 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		$this->dynamic_count++;
 
 		return $tax_elements;
+	}
+
+	/**
+	 * Generate Elements from post archive
+	 * @param stdObj $menu_item Current Menu Item Being Populated
+	 * @param array $page_parent_id Post type to populate with
+	 * @param  bool $replace_parent
+	 * @return array list of elements
+	 */
+	public function _populate_archive_items($menu_item, $post_type, $replace_parent = false){
+		
+		global $post;
+
+		$id_field = $this->db_fields['id'];
+		$parent_field = $this->db_fields['parent'];
+		$return = wp_get_archives( array('format' => 'custom', 'echo' => false));
+		$test = preg_replace_callback('/<a href=["\']?(.*?)[\'"]?>(.*?)<\/a>/', array($this, 'extract_archive_data'), $return);
+		$elements = array();
+
+		$id = 0;
+
+		if(!empty($this->links)){
+
+			foreach($this->links as $link){
+				
+				$id++;
+
+				$element = new StdClass();
+				$element->title = $link['title'];
+				$element->url = $link['url'];
+				$element->$id_field = "url".$id;
+				$element->ID = "url".$id;
+
+				// remove childpop item
+				if($replace_parent){	
+					$element->$parent_field = $menu_item->$parent_field;
+				}else{
+					$element->$parent_field = $menu_item->$id_field;	
+				}
+
+				if((is_day() || is_month() || is_year()) && strcasecmp($_SERVER['REQUEST_SCHEME'].'://'. $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"], $element->url) == 0){
+					$element->current = 1;
+				}
+
+				$elements[] = clone($element);
+			}
+
+			
+		}
+
+		return $elements;
+	}
+
+	var $links = array();
+
+	public function extract_archive_data($data){
+		if(isset($data[1]) && isset($data[2])){
+			$this->links[] = array('title' => $data[2], 'url' => $data[1]);
+		}
+		return '';
 	}
 }

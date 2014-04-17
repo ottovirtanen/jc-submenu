@@ -28,76 +28,78 @@
 	</p>
 
 	<!-- Post Population Options -->
-	<?php $p_types = get_post_types(array('public' => true)); ?>
-	<div class="jc-submenu-row jc_two_cols">
-		<p class="jc-submenu-populate-post show-post hidden">
-			<?php $post_type_taxs = array(); ?>
-			<label>Post Type</label>
-			<select id="edit-jc-submenu-populate-post-<?php echo $item_id; ?>"name="jc-submenu-populate-post[<?php echo $item_id; ?>]">
-			<?php foreach($p_types as $slug => $name): ?>
-				<option value="<?php echo $slug; ?>" data-taxs="<?php echo implode(' ', get_object_taxonomies( $slug )) ?>" <?php if(SubmenuModel::get_meta($item_id, 'populate-value') == $slug): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
-			<?php endforeach; ?>
-			</select>
-		</p>
-	</div>
-
-	<div class="jc-submenu-row jc_two_cols">
-		<p class="jc-submenu-post-tax show-post hidden">
-			<label>Taxonomy</label>
-			<?php $taxs = get_taxonomies( array('public' => true) ); ?>
-			<select id="edit-jc-submenu-post-tax-<?php echo $item_id; ?>"name="jc-submenu-post-tax[<?php echo $item_id; ?>]">
-				<option value="0">All</option>
-				<?php foreach($taxs as $slug => $name): ?>
-				<option value="<?php echo $slug; ?>" <?php if(SubmenuModel::get_meta($item_id, 'post-tax') == $slug): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
+	<div class="item-edit-panel show-post hidden">
+		<?php $p_types = get_post_types(array('public' => true)); ?>
+		<div class="jc-submenu-row jc_two_cols">
+			<p class="jc-submenu-populate-post">
+				<?php $post_type_taxs = array(); ?>
+				<label>Post Type</label>
+				<select id="edit-jc-submenu-populate-post-<?php echo $item_id; ?>"name="jc-submenu-populate-post[<?php echo $item_id; ?>]">
+				<?php foreach($p_types as $slug => $name): ?>
+					<option value="<?php echo $slug; ?>" data-taxs="<?php echo implode(' ', get_object_taxonomies( $slug )) ?>" <?php if(SubmenuModel::get_meta($item_id, 'populate-value') == $slug): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
 				<?php endforeach; ?>
-			</select>
-		</p>
+				</select>
+			</p>
+		</div>
 
-		<p class="jc-submenu-post-term show-post hidden">
-			<label>Terms</label>
-			<select id="edit-jc-submenu-post-term-<?php echo $item_id; ?>"name="jc-submenu-post-term[<?php echo $item_id; ?>]">
-				<?php foreach($taxs as $slug => $name): ?>
-
-					<?php $terms = get_terms( $slug, array('hide_empty' => false) ); ?>
-					<?php foreach($terms as $term): ?>
-						<option value="<?php echo $term->term_id; ?>" data-tax="<?php echo $slug; ?>" <?php if(SubmenuModel::get_meta($item_id, 'post-term') == $term->term_id): ?>selected="selected"<?php endif; ?>><?php echo $term->name; ?></option>
+		<div class="jc-submenu-row jc_two_cols">
+			<p class="jc-submenu-post-tax ">
+				<label>Taxonomy</label>
+				<?php $taxs = get_taxonomies( array('public' => true) ); ?>
+				<select id="edit-jc-submenu-post-tax-<?php echo $item_id; ?>"name="jc-submenu-post-tax[<?php echo $item_id; ?>]">
+					<option value="0">All</option>
+					<?php foreach($taxs as $slug => $name): ?>
+					<option value="<?php echo $slug; ?>" <?php if(SubmenuModel::get_meta($item_id, 'post-tax') == $slug): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
 					<?php endforeach; ?>
-				<?php endforeach; ?>
-			</select>
-		</p>
-	</div>
+				</select>
+			</p>
 
-	<?php $order_options = SubmenuModel::get_order_options('post'); 
-	$orderby = array('ASC' => 'Ascending', 'DESC' => 'Descending' ); ?>
-	<div class="jc-submenu-row jc_two_cols">
-		<p class="jc-submenu-post-order show-post hidden">
-			<label>Order</label>
-			<select id="edit-jc-submenu-post-orderby-<?php echo $item_id; ?>"name="jc-submenu-post-orderby[<?php echo $item_id; ?>]">
-			<?php foreach($order_options as $value => $name): ?>
-				<option value="<?php echo $value; ?>" <?php if(SubmenuModel::get_meta($item_id, 'post-orderby') == $value): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
-			<?php endforeach; ?>
-			</select>
-		</p>
-		<p class="jc-submenu-post-orderby show-post hidden">
-			<label>By</label>
-			<select id="edit-jc-submenu-post-order-<?php echo $item_id; ?>"name="jc-submenu-post-order[<?php echo $item_id; ?>]">
-			<?php foreach($orderby as $value => $name): ?>
-				<option value="<?php echo $value; ?>" <?php if(SubmenuModel::get_meta($item_id, 'post-order') == $value): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
-			<?php endforeach; ?>
-			</select>
-		</p>
-	</div>
-	<?php 
-	$post_limit = SubmenuModel::get_meta($item_id, 'post-limit');
-	if(!$post_limit){
-		$post_limit = 0;
-	}
-	?>
-	<div class="jc-submenu-row jc_two_cols">
-		<p class="jc-submenu-post-limit show-post hidden">
-			<label>Post Limit</label>
-			<input type="text" id="edit-jc-submenu-post-limit-<?php echo $item_id; ?>"name="jc-submenu-post-limit[<?php echo $item_id; ?>]" value="<?php echo $post_limit; ?>" />
-		</p>
+			<p class="jc-submenu-post-term ">
+				<label>Terms</label>
+				<select id="edit-jc-submenu-post-term-<?php echo $item_id; ?>"name="jc-submenu-post-term[<?php echo $item_id; ?>]">
+					<?php foreach($taxs as $slug => $name): ?>
+
+						<?php $terms = get_terms( $slug, array('hide_empty' => false) ); ?>
+						<?php foreach($terms as $term): ?>
+							<option value="<?php echo $term->term_id; ?>" data-tax="<?php echo $slug; ?>" <?php if(SubmenuModel::get_meta($item_id, 'post-term') == $term->term_id): ?>selected="selected"<?php endif; ?>><?php echo $term->name; ?></option>
+						<?php endforeach; ?>
+					<?php endforeach; ?>
+				</select>
+			</p>
+		</div>
+
+		<?php $order_options = SubmenuModel::get_order_options('post'); 
+		$orderby = array('ASC' => 'Ascending', 'DESC' => 'Descending' ); ?>
+		<div class="jc-submenu-row jc_two_cols">
+			<p class="jc-submenu-post-order ">
+				<label>Order</label>
+				<select id="edit-jc-submenu-post-orderby-<?php echo $item_id; ?>"name="jc-submenu-post-orderby[<?php echo $item_id; ?>]">
+				<?php foreach($order_options as $value => $name): ?>
+					<option value="<?php echo $value; ?>" <?php if(SubmenuModel::get_meta($item_id, 'post-orderby') == $value): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
+				<?php endforeach; ?>
+				</select>
+			</p>
+			<p class="jc-submenu-post-orderby ">
+				<label>By</label>
+				<select id="edit-jc-submenu-post-order-<?php echo $item_id; ?>"name="jc-submenu-post-order[<?php echo $item_id; ?>]">
+				<?php foreach($orderby as $value => $name): ?>
+					<option value="<?php echo $value; ?>" <?php if(SubmenuModel::get_meta($item_id, 'post-order') == $value): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
+				<?php endforeach; ?>
+				</select>
+			</p>
+		</div>
+		<?php 
+		$post_limit = SubmenuModel::get_meta($item_id, 'post-limit');
+		if(!$post_limit){
+			$post_limit = 0;
+		}
+		?>
+		<div class="jc-submenu-row jc_two_cols">
+			<p class="jc-submenu-post-limit ">
+				<label>Post Limit</label>
+				<input type="text" id="edit-jc-submenu-post-limit-<?php echo $item_id; ?>"name="jc-submenu-post-limit[<?php echo $item_id; ?>]" value="<?php echo $post_limit; ?>" />
+			</p>
+		</div>
 	</div>
 	<!-- End of Post Population Option -->
 
@@ -108,73 +110,75 @@
 	</p>
 
 	<!-- Taxonomy Population Options -->
-	<?php $taxs = get_taxonomies( array('public' => true) ); ?>
-	<div class="jc-submenu-row jc_two_cols">
+	<div class="item-edit-panel show-tax hidden">
+		<?php $taxs = get_taxonomies( array('public' => true) ); ?>
+		<div class="jc-submenu-row jc_two_cols">
 
-		<p class="jc-submenu-populate-tax show-tax hidden">
-			<label>Taxonomies</label>
-			<select id="edit-jc-submenu-populate-tax-<?php echo $item_id; ?>"name="jc-submenu-populate-tax[<?php echo $item_id; ?>]">
-			<?php foreach($taxs as $slug => $name): ?>
-				<?php if($slug == 'post_format'){ continue; } ?>
-				<option value="<?php echo $slug; ?>" <?php if(SubmenuModel::get_meta($item_id, 'populate-value') == $slug): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
-			<?php endforeach; ?>
-			</select>
-		</p>
-
-		<p class="jc-submenu-tax-term show-tax hidden">
-			<label>Terms</label>
-			<select id="edit-jc-submenu-tax-term-<?php echo $item_id; ?>"name="jc-submenu-tax-term[<?php echo $item_id; ?>]">
-				<option value="0" data-tax="0">All</option>
+			<p class="jc-submenu-populate-tax ">
+				<label>Taxonomies</label>
+				<select id="edit-jc-submenu-populate-tax-<?php echo $item_id; ?>"name="jc-submenu-populate-tax[<?php echo $item_id; ?>]">
 				<?php foreach($taxs as $slug => $name): ?>
-
-					<?php $terms = get_terms( $slug, array('hide_empty' => false) ); ?>
-					<?php foreach($terms as $term): ?>
-						<option value="<?php echo $term->term_id; ?>" data-tax="<?php echo $slug; ?>" <?php if(SubmenuModel::get_meta($item_id, 'tax-term') == $term->term_id): ?>selected="selected"<?php endif; ?>><?php echo $term->name; ?></option>
-					<?php endforeach; ?>
+					<?php if($slug == 'post_format'){ continue; } ?>
+					<option value="<?php echo $slug; ?>" <?php if(SubmenuModel::get_meta($item_id, 'populate-value') == $slug): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
 				<?php endforeach; ?>
-			</select>
-		</p>
-	</div>
-	<?php 
-	$order_options = SubmenuModel::get_order_options('tax');
-	$orderby = array('ASC' => 'Ascending', 'DESC' => 'Descending' ); ?>
-	<div class="jc-submenu-row jc_two_cols">
-		<p class="jc-submenu-tax-orderby show-tax hidden">
-			<label>Order</label>
-			<select id="edit-jc-submenu-tax-orderby-<?php echo $item_id; ?>"name="jc-submenu-tax-orderby[<?php echo $item_id; ?>]">
-			<?php foreach($order_options as $value => $name): ?>
-				<option value="<?php echo $value; ?>" <?php if(SubmenuModel::get_meta($item_id, 'tax-orderby') == $value): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
-			<?php endforeach; ?>
-			</select>
-		</p>
-		<p class="jc-submenu-tax-order show-tax hidden">
-			<label>By</label>
-			<select id="edit-jc-submenu-tax-order-<?php echo $item_id; ?>"name="jc-submenu-tax-order[<?php echo $item_id; ?>]">
-			<?php foreach($orderby as $value => $name): ?>
-				<option value="<?php echo $value; ?>" <?php if(SubmenuModel::get_meta($item_id, 'tax-order') == $value): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
-			<?php endforeach; ?>
-			</select>
-		</p>
-	</div>
-	<div class="jc-submenu-row jc_two_cols">
-		<p class="jc-submenu-tax-exclude show-tax hidden">
-			<?php
-			$tax_exclude = SubmenuModel::get_meta($item_id, 'tax-exclude');
-			$tax_exclude = $tax_exclude ? implode(',', $tax_exclude) : '';
-			?>
-			<label>Exclude Terms (CSV of ID's)</label>
-			<input type="text" id="edit-jc-submenu-tax-exclude-<?php echo $item_id; ?>"name="jc-submenu-tax-exclude[<?php echo $item_id; ?>]" value="<?php echo $tax_exclude; ?>" />
-		</p>
-		<p class="jc-submenu-tax-depth show-tax hidden">
-			<label>Depth</label>
-			<input type="text" id="edit-jc-submenu-tax-depth-<?php echo $item_id; ?>"name="jc-submenu-tax-depth[<?php echo $item_id; ?>]" value="<?php echo SubmenuModel::get_meta($item_id, 'tax-depth'); ?>" />
-		</p>
-	</div>
-	<div class="jc-submenu-row jc_two_cols">
-		<p class="jc-submenu-tax-empty show-tax hidden">
-			<input type="checkbox" value="1" name="jc-submenu-tax-empty[<?php echo $item_id; ?>]" id="edit-jc-submenu-tax-empty-<?php echo $item_id; ?>" <?php if(SubmenuModel::get_meta($item_id, 'tax-empty') == 1): ?> checked="checked"<?php endif; ?>>
-			Hide Empty Terms
-		</p>
+				</select>
+			</p>
+
+			<p class="jc-submenu-tax-term ">
+				<label>Terms</label>
+				<select id="edit-jc-submenu-tax-term-<?php echo $item_id; ?>"name="jc-submenu-tax-term[<?php echo $item_id; ?>]">
+					<option value="0" data-tax="0">All</option>
+					<?php foreach($taxs as $slug => $name): ?>
+
+						<?php $terms = get_terms( $slug, array('hide_empty' => false) ); ?>
+						<?php foreach($terms as $term): ?>
+							<option value="<?php echo $term->term_id; ?>" data-tax="<?php echo $slug; ?>" <?php if(SubmenuModel::get_meta($item_id, 'tax-term') == $term->term_id): ?>selected="selected"<?php endif; ?>><?php echo $term->name; ?></option>
+						<?php endforeach; ?>
+					<?php endforeach; ?>
+				</select>
+			</p>
+		</div>
+		<?php 
+		$order_options = SubmenuModel::get_order_options('tax');
+		$orderby = array('ASC' => 'Ascending', 'DESC' => 'Descending' ); ?>
+		<div class="jc-submenu-row jc_two_cols">
+			<p class="jc-submenu-tax-orderby ">
+				<label>Order</label>
+				<select id="edit-jc-submenu-tax-orderby-<?php echo $item_id; ?>"name="jc-submenu-tax-orderby[<?php echo $item_id; ?>]">
+				<?php foreach($order_options as $value => $name): ?>
+					<option value="<?php echo $value; ?>" <?php if(SubmenuModel::get_meta($item_id, 'tax-orderby') == $value): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
+				<?php endforeach; ?>
+				</select>
+			</p>
+			<p class="jc-submenu-tax-order ">
+				<label>By</label>
+				<select id="edit-jc-submenu-tax-order-<?php echo $item_id; ?>"name="jc-submenu-tax-order[<?php echo $item_id; ?>]">
+				<?php foreach($orderby as $value => $name): ?>
+					<option value="<?php echo $value; ?>" <?php if(SubmenuModel::get_meta($item_id, 'tax-order') == $value): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
+				<?php endforeach; ?>
+				</select>
+			</p>
+		</div>
+		<div class="jc-submenu-row jc_two_cols">
+			<p class="jc-submenu-tax-exclude ">
+				<?php
+				$tax_exclude = SubmenuModel::get_meta($item_id, 'tax-exclude');
+				$tax_exclude = $tax_exclude ? implode(',', $tax_exclude) : '';
+				?>
+				<label>Exclude Terms (CSV of ID's)</label>
+				<input type="text" id="edit-jc-submenu-tax-exclude-<?php echo $item_id; ?>"name="jc-submenu-tax-exclude[<?php echo $item_id; ?>]" value="<?php echo $tax_exclude; ?>" />
+			</p>
+			<p class="jc-submenu-tax-depth ">
+				<label>Depth</label>
+				<input type="text" id="edit-jc-submenu-tax-depth-<?php echo $item_id; ?>"name="jc-submenu-tax-depth[<?php echo $item_id; ?>]" value="<?php echo SubmenuModel::get_meta($item_id, 'tax-depth'); ?>" />
+			</p>
+		</div>
+		<div class="jc-submenu-row jc_two_cols">
+			<p class="jc-submenu-tax-empty ">
+				<input type="checkbox" value="1" name="jc-submenu-tax-empty[<?php echo $item_id; ?>]" id="edit-jc-submenu-tax-empty-<?php echo $item_id; ?>" <?php if(SubmenuModel::get_meta($item_id, 'tax-empty') == 1): ?> checked="checked"<?php endif; ?>>
+				Hide Empty Terms
+			</p>
+		</div>
 	</div>
 
 	<!-- End of Taxonomy Population Options -->
@@ -185,60 +189,73 @@
 	</p>
 
 	<!-- Page Population Options -->
-	<div class="jc-submenu-row jc_two_cols">
-		<p class="jc-submenu-populate-page show-page hidden">
-			<label>Parent Page</label>
-			<?php 
-			wp_dropdown_pages(array(
-				'id' => 'edit-jc-submenu-populate-page-'.$item_id,
-				'name' => 'jc-submenu-populate-page['.$item_id.']',
-				'selected' => SubmenuModel::get_meta($item_id, 'populate-value')
-			));
-			?>
-		</p>
-	</div>
-
-	<?php $order_options = SubmenuModel::get_order_options('page'); ?>
-	<div class="jc-submenu-row jc_two_cols">
-		<p class="jc-submenu-page-order show-page hidden">
-			<label>Order</label>
-			<select id="edit-jc-submenu-page-orderby-<?php echo $item_id; ?>"name="jc-submenu-page-orderby[<?php echo $item_id; ?>]">
-			<?php foreach($order_options as $value => $name): ?>
-				<option value="<?php echo $value; ?>" <?php if(SubmenuModel::get_meta($item_id, 'page-orderby') == $value): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
-			<?php endforeach; ?>
-			</select>
-		</p>
-		<p class="jc-submenu-page-orderby show-page hidden">
-			<label>By</label>
-			<select id="edit-jc-submenu-page-order-<?php echo $item_id; ?>"name="jc-submenu-page-order[<?php echo $item_id; ?>]">
-			<?php foreach($orderby as $value => $name): ?>
-				<option value="<?php echo $value; ?>" <?php if(SubmenuModel::get_meta($item_id, 'page-order') == $value): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
-			<?php endforeach; ?>
-			</select>
-		</p>
-	</div>
-
-	<div class="jc-submenu-row jc_two_cols">
-		<p class="jc-submenu-page-exclude show-page hidden">
-			<label>Exclude Pages</label>
-			<?php 
-			$pages = get_pages();
-			$options = SubmenuModel::get_meta($item_id, 'page-exclude');
-			?>
-			<select id="edit-jc-submenu-page-exclude<?php echo $item_id; ?>"name="jc-submenu-page-exclude[<?php echo $item_id; ?>][]" multiple="multiple">
-				<?php
-				foreach($pages as $page){
-					if(is_array($options) && in_array($page->ID, $options)){
-						echo '<option value="'.$page->ID.'" selected="selected">'.$page->post_title.' (ID: '.$page->ID.')</option>';
-					}else{
-						echo '<option value="'.$page->ID.'">'.$page->post_title.' (ID: '.$page->ID.')</option>';	
-					}
-					
-				}
+	<div class="item-edit-panel show-page hidden">
+		<div class="jc-submenu-row jc_two_cols">
+			<p class="jc-submenu-populate-page ">
+				<label>Parent Page</label>
+				<?php 
+				wp_dropdown_pages(array(
+					'id' => 'edit-jc-submenu-populate-page-'.$item_id,
+					'name' => 'jc-submenu-populate-page['.$item_id.']',
+					'selected' => SubmenuModel::get_meta($item_id, 'populate-value')
+				));
 				?>
-			</select>
-		</p>
-	</div>
+			</p>
+		</div>
 
+		<?php $order_options = SubmenuModel::get_order_options('page'); ?>
+		<div class="jc-submenu-row jc_two_cols">
+			<p class="jc-submenu-page-order ">
+				<label>Order</label>
+				<select id="edit-jc-submenu-page-orderby-<?php echo $item_id; ?>"name="jc-submenu-page-orderby[<?php echo $item_id; ?>]">
+				<?php foreach($order_options as $value => $name): ?>
+					<option value="<?php echo $value; ?>" <?php if(SubmenuModel::get_meta($item_id, 'page-orderby') == $value): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
+				<?php endforeach; ?>
+				</select>
+			</p>
+			<p class="jc-submenu-page-orderby ">
+				<label>By</label>
+				<select id="edit-jc-submenu-page-order-<?php echo $item_id; ?>"name="jc-submenu-page-order[<?php echo $item_id; ?>]">
+				<?php foreach($orderby as $value => $name): ?>
+					<option value="<?php echo $value; ?>" <?php if(SubmenuModel::get_meta($item_id, 'page-order') == $value): ?>selected="selected"<?php endif; ?>><?php echo $name; ?></option>
+				<?php endforeach; ?>
+				</select>
+			</p>
+		</div>
+
+		<div class="jc-submenu-row jc_two_cols">
+			<p class="jc-submenu-page-exclude ">
+				<label>Exclude Pages</label>
+				<?php 
+				$pages = get_pages();
+				$options = SubmenuModel::get_meta($item_id, 'page-exclude');
+				?>
+				<select id="edit-jc-submenu-page-exclude<?php echo $item_id; ?>"name="jc-submenu-page-exclude[<?php echo $item_id; ?>][]" multiple="multiple">
+					<?php
+					foreach($pages as $page){
+						if(is_array($options) && in_array($page->ID, $options)){
+							echo '<option value="'.$page->ID.'" selected="selected">'.$page->post_title.' (ID: '.$page->ID.')</option>';
+						}else{
+							echo '<option value="'.$page->ID.'">'.$page->post_title.' (ID: '.$page->ID.')</option>';	
+						}
+						
+					}
+					?>
+				</select>
+			</p>
+		</div>
+	</div>
 	<!-- End of Page Population Options -->
+
+	<p id="accord-heading-archive-<?php echo $item_id; ?>" class="jc-submenu-populate-archive jc-accord-heading">
+		<input type="radio" id="show-jc-submenu-populate-archive-<?php echo $item_id; ?>" class="jc-submenu-populate-type" value="archive" name="jc-submenu-populate-type[<?php echo $item_id; ?>]" <?php if(SubmenuModel::get_meta($item_id, 'populate-type') == 'archive'): ?>checked="checked"<?php endif; ?> />
+		<label for="show-jc-submenu-populate-archive-<?php echo $item_id; ?>">Populate from Date Archives</label>
+	</p>
+
+	<!-- Page Population Options -->
+	<div class="item-edit-panel show-archive hidden">
+		<div class="jc-submenu-row jc_two_cols">
+			<input type="hidden" name="jc-submenu-populate-archive[<?php echo $item_id; ?>]" id="edit-jc-submenu-populate-archive-<?php echo $item_id; ?>" value="<?php echo SubmenuModel::get_meta($item_id, 'populate-value'); ?>" />
+		</div>
+	</div>
 </div>

@@ -72,7 +72,7 @@ class SubmenuModel{
 		if($type && $value){
 
 			// validate population type
-			if(!in_array($type, array('post','tax', 'page'))){
+			if(!in_array($type, array('post','tax', 'page', 'archive'))){
 				return 0;
 			}
 
@@ -165,6 +165,9 @@ class SubmenuModel{
 				self::save_meta($menu_item_id, 'page-order', $page_order);
 				self::save_meta($menu_item_id, 'page-orderby', $page_orderby);
 				self::save_meta($menu_item_id, 'page-exclude', $page_exclude);
+			}elseif($type == 'archive'){
+
+
 			}
 
 			// all validated save rest
