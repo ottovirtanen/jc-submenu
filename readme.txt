@@ -4,7 +4,7 @@ Donate link:
 Tags: submenu, menu, dynamic, custom post type, taxonomy, child pages
 Requires at least: 3.0.1
 Tested up to: 3.9
-Stable tag: 0.7
+Stable tag: 0.7.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -55,6 +55,15 @@ A list of all actions and filters can be found [here](http://jamescollings.co.uk
 4. JC Submenu, Advanced Submenu Widget Options
 
 == Changelog ==
+
+**0.7.1**
+
+* Fixed infinite loop error when passed badly formed menu items.
+
+**0.7**
+
+* Simplified dynamic menu population
+* Added the ability to replace the current item with dynamically populated items
 
 **0.6.2**
 

@@ -18,7 +18,7 @@
  */
 class JCSubmenu{
 
-	var $version = '0.7';
+	var $version = '0.7.1';
 	var $version_check = 70;
 	var $plugin_dir = false;
 	var $plugin_url = false;
