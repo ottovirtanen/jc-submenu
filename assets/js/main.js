@@ -29,7 +29,7 @@ var JC_Submenu = {
 		btn_handle.live('change', function(){
 
 			$('.jc-accord-heading', $('#menu-item-'+id)).removeClass('active');
-			$('.show-post, .show-tax, .show-page', $('#menu-item-'+id)).hide();
+			$('.item-edit-panel', $('#menu-item-'+id)).hide();
 
 			if($(this).attr('checked') == 'checked'){
 				$( '.show-'+$(this).val() , $('#menu-item-'+id) ).show();
@@ -213,7 +213,7 @@ var JC_Submenu = {
 	* Document Ready
 	*/
 	$(document).ready(function(){
-		$('.show-post, .show-tax, .show-page').hide();
+		$('.item-edit-panel').hide();
 	});
 
 })(jQuery);

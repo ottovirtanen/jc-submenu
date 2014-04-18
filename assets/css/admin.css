@@ -60,10 +60,10 @@ p.jc-accord-heading{
 	color:#FFF;
 }
 
-.jc-accord-heading.jc-submenu-populate-page{
+.jc-accord-heading.jc-submenu-populate-archive{
 	border-bottom: none;
 }
-.jc-accord-heading.jc-submenu-populate-page.active{
+.jc-accord-heading.jc-submenu-populate-archive.active{
 	border-bottom: 1px solid #dfdfdf;
 }
 
