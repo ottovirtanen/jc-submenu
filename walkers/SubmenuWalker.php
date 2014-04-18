@@ -830,17 +830,61 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 	 */
 	public function _populate_archive_items($menu_item, $post_type, $replace_parent = false){
 		
-		global $post;
+		global $post, $wp;
+
+		$current_url = add_query_arg( $wp->query_string, '', home_url( $wp->request ) );
+		//quickfix
+		if(strpos($current_url, '/?') === false && strpos($current_url, '?') !== false){
+			$current_url = str_replace('?', '/?', $current_url);
+		}
 
 		$id_field = $this->db_fields['id'];
 		$parent_field = $this->db_fields['parent'];
 		$return = wp_get_archives( array('format' => 'custom', 'echo' => false));
-		$test = preg_replace_callback('/<a href=["\']?(.*?)[\'"]?>(.*?)<\/a>/', array($this, 'extract_archive_data'), $return);
+		$test = preg_replace_callback('/<a href=["\']?(.*?)[\'"]?>(.*?)<\/a>/', array($this, 'extract_archive_month'), $return);
 		$elements = array();
+		$dynamic_item_prefix = str_repeat(0, $this->dynamic_count);
+		$archive_parent_id = $menu_item->$id_field;
+		$group_by_year = SubmenuModel::get_meta($archive_parent_id, 'archive-group');
 
 		$id = 0;
 
 		if(!empty($this->links)){
+
+			$years = array();
+
+			if($group_by_year){
+				
+				$this->get_archive_years();
+
+				foreach($this->year_links as $year => $year_data){
+
+					$id++;
+
+					$element = new StdClass();
+					$element->title = $year_data['title'];
+					$element->url = $year_data['url'];
+					$element->$id_field = $dynamic_item_prefix.$id;
+					$element->ID = $dynamic_item_prefix.$id;
+
+					$years[$year] = $dynamic_item_prefix.$id;
+
+					// remove childpop item
+					if($replace_parent){	
+						$element->$parent_field = $menu_item->$parent_field;
+					}else{
+						$element->$parent_field = $menu_item->$id_field;	
+					}
+
+					if(is_year() && strcasecmp($current_url, $element->url) == 0){
+						$element->current = 1;
+						$element->classes[] = 'current-menu-item';
+						$element->split_section = true;
+					}
+
+					$elements[] = clone($element);
+				}
+			}
 
 			foreach($this->links as $link){
 				
@@ -849,18 +893,26 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 				$element = new StdClass();
 				$element->title = $link['title'];
 				$element->url = $link['url'];
-				$element->$id_field = "url".$id;
-				$element->ID = "url".$id;
+				$element->$id_field = $dynamic_item_prefix.$id;
+				$element->ID = $dynamic_item_prefix.$id;
 
-				// remove childpop item
-				if($replace_parent){	
-					$element->$parent_field = $menu_item->$parent_field;
+				if(array_key_exists($link['year'], $years)){
+
+					$element->$parent_field = $years[$link['year']];
 				}else{
-					$element->$parent_field = $menu_item->$id_field;	
+					
+					// remove childpop item
+					if($replace_parent){	
+						$element->$parent_field = $menu_item->$parent_field;
+					}else{
+						$element->$parent_field = $menu_item->$id_field;	
+					}	
 				}
 
-				if((is_day() || is_month() || is_year()) && strcasecmp($_SERVER['REQUEST_SCHEME'].'://'. $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"], $element->url) == 0){
+				if((is_month() || is_year()) && strcasecmp($current_url, $element->url) == 0){
 					$element->current = 1;
+					$element->classes[] = 'current-menu-item';
+					$element->split_section = true;
 				}
 
 				$elements[] = clone($element);
@@ -872,11 +924,40 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		return $elements;
 	}
 
-	var $links = array();
+	public function get_archive_years(){
+		$return = wp_get_archives( array('format' => 'custom', 'echo' => false, 'type' => 'yearly'));
+		$test = preg_replace_callback('/<a href=["\']?(.*?)[\'"]?>(.*?)<\/a>/', array($this, 'extract_archive_year'), $return);
+		return $this->year_links;
+	}
 
-	public function extract_archive_data($data){
+	var $links = array();
+	var $year_links = array();
+	var $years = array();
+
+	public function extract_archive_year($data){
 		if(isset($data[1]) && isset($data[2])){
-			$this->links[] = array('title' => $data[2], 'url' => $data[1]);
+			
+			$year = $data[2];
+
+			// create list of years
+			if(!in_array($year, $this->years)){
+				$this->years[] = $year;
+			}
+
+			$this->year_links[$year] = array('title' => $year, 'url' => $data[1]);
+		}
+		return '';
+	}
+
+	public function extract_archive_month($data){
+		if(isset($data[1]) && isset($data[2])){
+			
+			// extract year and month from title
+			$date = explode(' ', $data[2]);
+			$month = $date[0];
+			$year = $date[1];
+
+			$this->links[] = array('title' => $data[2], 'url' => $data[1], 'year' => $year, 'month' => $month);
 		}
 		return '';
 	}

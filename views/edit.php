@@ -257,5 +257,12 @@
 		<div class="jc-submenu-row jc_two_cols">
 			<input type="hidden" name="jc-submenu-populate-archive[<?php echo $item_id; ?>]" id="edit-jc-submenu-populate-archive-<?php echo $item_id; ?>" value="post" />
 		</div>
+
+		<div class="jc-submenu-row jc_two_cols">
+			<p class="jc-submenu-archive-group ">
+				<input type="checkbox" value="1" name="jc-submenu-archive-group[<?php echo $item_id; ?>]" id="edit-jc-submenu-archive-group-<?php echo $item_id; ?>" <?php if(SubmenuModel::get_meta($item_id, 'archive-group') == 1): ?> checked="checked"<?php endif; ?>>
+				Group by Year
+			</p>
+		</div>
 	</div>
 </div>

@@ -167,7 +167,9 @@ class SubmenuModel{
 				self::save_meta($menu_item_id, 'page-exclude', $page_exclude);
 			}elseif($type == 'archive'){
 
-
+				$archive_group = self::get_post_data($menu_item_id, 'archive-group');
+				$archive_group = $archive_group == 1 ? 1 : 0; 
+				self::save_meta($menu_item_id, 'archive-group', $archive_group);
 			}
 
 			// all validated save rest
@@ -267,7 +269,8 @@ class SubmenuModel{
 			'tax-empty',
 			'post-tax',
 			'post-term',
-			'childpop'
+			'childpop',
+			'archive-group'
 		);
 		
 		foreach($keys as $meta_key){
