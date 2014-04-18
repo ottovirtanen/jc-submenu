@@ -255,7 +255,7 @@
 	<!-- Page Population Options -->
 	<div class="item-edit-panel show-archive hidden">
 		<div class="jc-submenu-row jc_two_cols">
-			<input type="hidden" name="jc-submenu-populate-archive[<?php echo $item_id; ?>]" id="edit-jc-submenu-populate-archive-<?php echo $item_id; ?>" value="<?php echo SubmenuModel::get_meta($item_id, 'populate-value'); ?>" />
+			<input type="hidden" name="jc-submenu-populate-archive[<?php echo $item_id; ?>]" id="edit-jc-submenu-populate-archive-<?php echo $item_id; ?>" value="post" />
 		</div>
 	</div>
 </div>
