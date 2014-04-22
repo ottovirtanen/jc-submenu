@@ -4,7 +4,7 @@ Donate link:
 Tags: submenu, menu, dynamic, custom post type, taxonomy, child pages
 Requires at least: 3.0.1
 Tested up to: 3.9
-Stable tag: 0.7.1
+Stable tag: 0.7.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -55,6 +55,12 @@ A list of all actions and filters can be found [here](http://jamescollings.co.uk
 4. JC Submenu, Advanced Submenu Widget Options
 
 == Changelog ==
+
+**0.7.2**
+
+* Added filter to change submenu level class jcs/menu_level_class, return array of classes
+* Added the option to populate by post date archive
+* Added post date archive grouping by year
 
 **0.7.1**
 

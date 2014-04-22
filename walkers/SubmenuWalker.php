@@ -55,13 +55,28 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 	}
 
 	function start_lvl( &$output, $depth = 0, $args = array() ) {
-		if( $this->hierarchical == 1 )
-			parent::start_lvl($output, $depth, $args);
+
+		if( $this->hierarchical == 1 ){
+
+			$classes = apply_filters( 'jcs/menu_level_class', array('sub-menu'), $depth, $args);
+			$level_classes = "";
+			$indent = str_repeat("\t", $depth);
+
+			if(is_array($classes) && !empty($classes)){
+				$level_classes = implode(" ", $classes);
+			}
+			
+			$output .= "\n$indent<ul class=\"$level_classes\">\n";
+		}
 	}
  
 	function end_lvl( &$output, $depth = 0, $args = array() ) {
-		if( $this->hierarchical == 1 )
-			parent::end_lvl($output, $depth, $args);
+
+		if( $this->hierarchical == 1 ){
+
+			$indent = str_repeat("\t", $depth);
+			$output .= "$indent</ul>\n";
+		}
 	}
 
 	/**
@@ -105,7 +120,13 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		 * marked for auto population using this plugin
 		 */
 		
-		$elements = $this->attach_elements($elements);
+		global $jcsubmenu;
+
+		if($jcsubmenu->public_walker){
+			$elements = $this->attach_elements($elements);
+		}
+
+		$elements = $this->_process_menu($elements);
 
 		// escape if no elements are left
 		if(empty($elements)){
@@ -218,6 +239,14 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		}
 
 		$elements = $new_elements;
+
+		return $elements;
+	}
+
+	public function _process_menu($elements = array()){
+
+		$id_field = $this->db_fields['id'];
+		$parent_field = $this->db_fields['parent'];
 
 		// set menu item status
 		$elements = $this->_set_elements_state($elements);

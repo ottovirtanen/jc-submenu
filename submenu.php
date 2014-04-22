@@ -3,7 +3,7 @@
 	Plugin Name: JC Submenu
 	Plugin URI: http://jamescollings.co.uk/blog/jc-submenu-dynamic-wordpress-menu-plugin/
 	Description: Wordpress Submenu Plugin, automatically populate your navigation menus with custom post_types, taxonomies, or child pages. An easy to use plugin created to be a lightweight menu extension.
-	Version: 0.7
+	Version: 0.7.2
 	Author: James Collings
 	Author URI: http://www.jamescollings.co.uk
  */
@@ -14,16 +14,17 @@
  * Core plugin file, load all required classes
  * 
  * @author James Collings <james@jclabs.co.uk>
- * @version 0.7
+ * @version 0.7.2
  */
 class JCSubmenu{
 
-	var $version = '0.7.1';
+	var $version = '0.7.2';
 	var $version_check = 70;
 	var $plugin_dir = false;
 	var $plugin_url = false;
 	var $prefix = 'jc-submenu';
 	var $edit_walker = false;
+	var $public_walker = true;
 
 	/**
 	 * Setup plugin
@@ -34,9 +35,13 @@ class JCSubmenu{
 		$this->plugin_dir =  plugin_dir_path( __FILE__ );
 		$this->plugin_url = plugins_url( '/', __FILE__ );
 
-		add_filter( 'wp_nav_menu_args', array( $this, 'attach_menu_walker' ));
-
 		$this->load_modules();
+
+		if(!$this->public_walker){
+			add_filter( 'wp_nav_menu_objects', array( $this, 'populate_menu_items' ));
+		}else{
+			add_filter( 'wp_nav_menu_args', array( $this, 'attach_menu_walker' ));
+		}
 
 		// add plugin hooks
 		add_action('jcs/menu_section', array($this, 'output_menu_section'), 10, 2);
@@ -60,6 +65,20 @@ class JCSubmenu{
 			$args['walker'] = new JC_Submenu_Nav_Walker();
 		}
 		return $args;
+	}
+
+	/**
+	 * Add menu items without using a custom walker
+	 * 
+	 * @param  array  $menu_items
+	 * @return array new menu items
+	 */
+	function populate_menu_items($menu_items = array()){
+
+		$walker = new JC_Submenu_Nav_Walker();
+		$menu_items = $walker->attach_elements($menu_items);
+
+		return $menu_items;
 	}
 
 	/**
