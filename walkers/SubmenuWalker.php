@@ -173,17 +173,7 @@ class JC_Submenu_Nav_Walker extends Walker_Nav_Menu {
 		foreach ( $top_level_elements as $e )
 			$this->display_element( $e, $children_elements, $max_depth, 0, $args, $output );
 
-		/*
-		 * if we are displaying all levels, and remaining children_elements is not empty,
-		 * then we got orphans, which should be displayed regardless
-		 */
-		if ( ( $max_depth == 0 ) && count( $children_elements ) > 0 ) {
-			$empty_array = array();
-			foreach ( $children_elements as $orphans )
-				foreach( $orphans as $op )
-					$this->display_element( $op, $empty_array, 1, 0, $args, $output );
-		 }
-
+	
 		 return $output;
 	}
 
